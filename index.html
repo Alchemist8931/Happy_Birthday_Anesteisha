@@ -237,23 +237,24 @@
         }
         
         /* Hidden Image */
-        .hidden-image {
-            position: fixed;
-            bottom: -100%;
-            left: 70%;
-            transform: translateX(-50%);
-            z-index: 90;
-            max-width: 300px;
-            max-height: 60vh;
-            object-fit: contain;
-            transition: bottom 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(74, 64, 53, 0.2);
-        }
-        
-        .hidden-image.visible {
-            bottom: 20px;
-        }
+        /* Hidden Image */
+.hidden-image {
+    position: fixed;
+    bottom: -98%;
+    left: 70%;
+    transform: translateX(-50%);
+    z-index: 90;
+    max-width: 600px;
+    max-height: 80vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    transition: bottom 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hidden-image.visible {
+    bottom: 2%;
+}
         
         /* Progress Bar */
         .progress-bar {
@@ -598,112 +599,122 @@
 
         // ==================== TEMPLATE MANAGEMENT ====================
         function showTemplate(templateId) {
-            // Hide current template
-            if (currentTemplate) {
-                currentTemplate.classList.remove('active');
-                currentTemplate.classList.add('fade-out');
+    // Hide current template
+    if (currentTemplate) {
+        currentTemplate.classList.remove('active');
+        currentTemplate.classList.add('fade-out');
+    }
+    
+    return new Promise(resolve => {
+        setTimeout(() => {
+            const template = document.getElementById(templateId);
+            const content = template.content.cloneNode(true);
+            
+            // Remove old content if exists
+            const oldContent = document.querySelector('.template-content');
+            if (oldContent) {
+                oldContent.remove();
             }
             
-            return new Promise(resolve => {
-                setTimeout(() => {
-                    const template = document.getElementById(templateId);
-                    const content = template.content.cloneNode(true);
-                    
-                    // Remove old content if exists
-                    const oldContent = document.querySelector('.template-content');
-                    if (oldContent) {
-                        oldContent.remove();
-                    }
-                    
-                    // Create new content wrapper
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'template-content active';
-                    wrapper.innerHTML = content.innerHTML;
-                    document.querySelector('.main-content').appendChild(wrapper);
-                    
-                    currentTemplate = wrapper;
-                    wrapper.classList.add('fade-in');
-                    
-                    setTimeout(resolve, 600);
-                }, 400);
+            // Create new content wrapper
+            const wrapper = document.createElement('div');
+            wrapper.className = 'template-content active';
+            wrapper.appendChild(content);
+            document.querySelector('.main-content').appendChild(wrapper);
+            
+            currentTemplate = wrapper;
+            wrapper.classList.add('fade-in');
+            
+            // Small delay to ensure DOM is ready
+            requestAnimationFrame(() => {
+                resolve(wrapper);
             });
-        }
+        }, 400);
+    });
+}
 
         // ==================== WELCOME SCREEN ====================
         async function showWelcome() {
-            await showTemplate('template-welcome');
-            
-            const typingText = document.getElementById('typing-text');
-            const startBtn = document.getElementById('start-btn');
-            
-            const welcomeSequence = [
-                { text: "Привет! Сегодня особенный день... ", type: "normal" },
-                { text: "Привет! Сегодня особенный день... Погоди, это же твой день рождения? ", type: "normal" },
-                { text: "Привет! Сегодня особенный день! Или нет... Подожди, дай я проверю календарь ", type: "normal" },
-                { text: "Привет! Да, сегодня твой день! Готова к небольшой викторине в твою честь?", type: "final" }
-            ];
-            
-            await typeText(typingText, welcomeSequence, 35);
-            
-            // Show start button
-            startBtn.style.opacity = '1';
-            startBtn.style.pointerEvents = 'auto';
-            startBtn.classList.add('fade-in');
-            
-            startBtn.addEventListener('click', () => {
-                startBtn.classList.add('fade-out');
-                setTimeout(() => showRound(1), 400);
-            });
-        }
+    const wrapper = await showTemplate('template-welcome');
+    
+    const typingText = wrapper.querySelector('#typing-text');
+    const startBtn = wrapper.querySelector('#start-btn');
+    
+    if (!typingText) {
+        console.error('typingText element not found');
+        return;
+    }
+    
+    const welcomeSequence = [
+        { text: "Привет! Сегодня особенный день... ", type: "normal" },
+        { text: "Привет! Сегодня особенный день... Погоди, это же твой день рождения? ", type: "normal" },
+        { text: "Привет! Сегодня особенный день! Или нет... Подожди, дай я проверю календарь ", type: "normal" },
+        { text: "Привет! Да, сегодня твой день! Готова к небольшой викторине в твою честь?", type: "final" }
+    ];
+    
+    await typeText(typingText, welcomeSequence, 35);
+    
+    // Show start button
+    if (startBtn) {
+        startBtn.style.opacity = '1';
+        startBtn.style.pointerEvents = 'auto';
+        startBtn.classList.add('fade-in');
+        
+        startBtn.addEventListener('click', () => {
+            startBtn.classList.add('fade-out');
+            setTimeout(() => showRound(1), 400);
+        });
+    }
+}}
 
         // ==================== ROUND LOGIC ====================
         async function showRound(roundNum) {
-            const roundData = quizData[`round${roundNum}`];
-            await showTemplate(`template-round${roundNum}`);
-            
-            const questionEl = document.querySelector('.template-content .round-question');
-            const answersContainer = document.getElementById(`answers-${roundNum}`);
-            const nextBtn = document.querySelector('.template-content .next-round-btn');
-            
-            // Reset state
-            selectedAnswer = null;
-            isConfirmed = false;
-            
-            // Type question
-            await typeText(questionEl, roundData.questionSequence, 35);
-            
-            // Create answer buttons with stagger animation
-            answersContainer.innerHTML = '';
-            roundData.answers.forEach((answer, index) => {
-                const btn = document.createElement('button');
-                btn.className = 'answer-btn stagger-item p-4 bg-white/50 border border-warm rounded-xl text-left text-text hover:bg-white/70 transition-all duration-300';
-                btn.innerHTML = `
-                    <span class="block font-medium">${String.fromCharCode(65 + index)}.</span>
-                    <span class="block mt-1">${answer.text}</span>
-                `;
-                btn.dataset.correct = answer.correct;
-                btn.dataset.index = index;
-                
-                answersContainer.appendChild(btn);
-                
-                // Stagger animation
-                setTimeout(() => {
-                    btn.classList.add('animate');
-                }, index * 100);
-                
-                // Click handler
-                btn.addEventListener('click', () => handleAnswerClick(btn, answersContainer, nextBtn));
-            });
-            
-            // Next button handler
-            nextBtn.addEventListener('click', () => {
-                if (roundNum < 3) {
-                    showRound(roundNum + 1);
-                } else {
-                    showResults();
-                }
-            }, { once: true });
+    const roundData = quizData[`round${roundNum}`];
+    const wrapper = await showTemplate(`template-round${roundNum}`);
+    
+    const questionEl = wrapper.querySelector('.round-question');
+    const answersContainer = wrapper.querySelector(`#answers-${roundNum}`);
+    const nextBtn = wrapper.querySelector('.next-round-btn');
+    
+    // Reset state
+    selectedAnswer = null;
+    isConfirmed = false;
+    
+    // Type question
+    await typeText(questionEl, roundData.questionSequence, 35);
+    
+    // Create answer buttons with stagger animation
+    answersContainer.innerHTML = '';
+    roundData.answers.forEach((answer, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'answer-btn stagger-item p-4 bg-white/50 border border-warm rounded-xl text-left text-text hover:bg-white/70 transition-all duration-300';
+        btn.innerHTML = `
+            <span class="block font-medium">${String.fromCharCode(65 + index)}.</span>
+            <span class="block mt-1">${answer.text}</span>
+        `;
+        btn.dataset.correct = answer.correct;
+        btn.dataset.index = index;
+        
+        answersContainer.appendChild(btn);
+        
+        // Stagger animation
+        setTimeout(() => {
+            btn.classList.add('animate');
+        }, index * 100);
+        
+        // Click handler
+        btn.addEventListener('click', () => handleAnswerClick(btn, answersContainer, nextBtn));
+    });
+    
+    // Next button handler
+    nextBtn.addEventListener('click', () => {
+        if (roundNum < 3) {
+            showRound(roundNum + 1);
+        } else {
+            showResults();
         }
+    }, { once: true });
+}
 
         function handleAnswerClick(btn, container, nextBtn) {
             if (isConfirmed) return;
@@ -754,35 +765,35 @@
 
         // ==================== RESULTS ====================
         async function showResults() {
-            await showTemplate('template-results');
-            
-            const resultsText = document.getElementById('results-text');
-            const scoreText = document.getElementById('score-text');
-            const finalMessage = document.getElementById('final-message');
-            
-            await typeText(resultsText, quizData.resultsSequence, 35);
-            
-            // Show score
-            scoreText.textContent = `Правильных ответов: ${score} из 3`;
-            scoreText.classList.add('fade-in');
-            
-            // Show final message
-            await sleep(500);
-            
-            let message = '';
-            if (score === 3) {
-                message = 'Да ты просто гений! Или подглядывала? В любом случае, ты лучшая!';
-            } else if (score === 2) {
-                message = 'Неплохо! Почти идеально. Ты всё равно самая лучшая!';
-            } else if (score === 1) {
-                message = 'Ну, главное не победа, а участие! Ты замечательная подруга!';
-            } else {
-                message = 'Эмм... Может, просто выпьем за твой день рождения? Ты всё равно любимая!';
-            }
-            
-            finalMessage.textContent = message;
-            finalMessage.style.opacity = '1';
-        }
+    const wrapper = await showTemplate('template-results');
+    
+    const resultsText = wrapper.querySelector('#results-text');
+    const scoreText = wrapper.querySelector('#score-text');
+    const finalMessage = wrapper.querySelector('#final-message');
+    
+    await typeText(resultsText, quizData.resultsSequence, 35);
+    
+    // Show score
+    scoreText.textContent = `Правильных ответов: ${score} из 3`;
+    scoreText.classList.add('fade-in');
+    
+    // Show final message
+    await sleep(500);
+    
+    let message = '';
+    if (score === 3) {
+        message = 'Да ты просто гений! Или подглядывала? В любом случае, ты лучшая!';
+    } else if (score === 2) {
+        message = 'Неплохо! Почти идеально. Ты всё равно самая лучшая!';
+    } else if (score === 1) {
+        message = 'Ну, главное не победа, а участие! Ты замечательная подруга!';
+    } else {
+        message = 'Эмм... Может, просто выпьем за твой день рождения? Ты всё равно любимая!';
+    }
+    
+    finalMessage.textContent = message;
+    finalMessage.style.opacity = '1';
+}}
 
         // ==================== SURPRISE FUNCTIONALITY ====================
         async function toggleSurprise() {
