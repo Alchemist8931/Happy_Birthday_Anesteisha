@@ -633,39 +633,39 @@
     });
 }
 
-        // ==================== WELCOME SCREEN ====================
+                // ==================== WELCOME SCREEN ====================
         async function showWelcome() {
-    const wrapper = await showTemplate('template-welcome');
-    
-    const typingText = wrapper.querySelector('#typing-text');
-    const startBtn = wrapper.querySelector('#start-btn');
-    
-    if (!typingText) {
-        console.error('typingText element not found');
-        return;
-    }
-    
-    const welcomeSequence = [
-        { text: "Привет! Сегодня особенный день... ", type: "normal" },
-        { text: "Привет! Сегодня особенный день... Погоди, это же твой день рождения? ", type: "normal" },
-        { text: "Привет! Сегодня особенный день! Или нет... Подожди, дай я проверю календарь ", type: "normal" },
-        { text: "Привет! Да, сегодня твой день! Готова к небольшой викторине в твою честь?", type: "final" }
-    ];
-    
-    await typeText(typingText, welcomeSequence, 35);
-    
-    // Show start button
-    if (startBtn) {
-        startBtn.style.opacity = '1';
-        startBtn.style.pointerEvents = 'auto';
-        startBtn.classList.add('fade-in');
-        
-        startBtn.addEventListener('click', () => {
-            startBtn.classList.add('fade-out');
-            setTimeout(() => showRound(1), 400);
-        });
-    }
-}}
+            const wrapper = await showTemplate('template-welcome');
+            
+            const typingText = wrapper.querySelector('#typing-text');
+            const startBtn = wrapper.querySelector('#start-btn');
+            
+            if (!typingText) {
+                console.error('typingText element not found');
+                return;
+            }
+            
+            const welcomeSequence = [
+                { text: "Привет! Сегодня особенный день... ", type: "normal" },
+                { text: "Привет! Сегодня особенный день... Погоди, это же твой день рождения? ", type: "normal" },
+                { text: "Привет! Сегодня особенный день! Или нет... Подожди, дай я проверю календарь ", type: "normal" },
+                { text: "Привет! Да, сегодня твой день! Готова к небольшой викторине в твою честь?", type: "final" }
+            ];
+            
+            await typeText(typingText, welcomeSequence, 35);
+            
+            // Show start button
+            if (startBtn) {
+                startBtn.style.opacity = '1';
+                startBtn.style.pointerEvents = 'auto';
+                startBtn.classList.add('fade-in');
+                
+                startBtn.addEventListener('click', () => {
+                    startBtn.classList.add('fade-out');
+                    setTimeout(() => showRound(1), 400);
+                });
+            }
+        }
 
         // ==================== ROUND LOGIC ====================
         async function showRound(roundNum) {
@@ -764,36 +764,37 @@
         }
 
         // ==================== RESULTS ====================
+                // ==================== RESULTS ====================
         async function showResults() {
-    const wrapper = await showTemplate('template-results');
-    
-    const resultsText = wrapper.querySelector('#results-text');
-    const scoreText = wrapper.querySelector('#score-text');
-    const finalMessage = wrapper.querySelector('#final-message');
-    
-    await typeText(resultsText, quizData.resultsSequence, 35);
-    
-    // Show score
-    scoreText.textContent = `Правильных ответов: ${score} из 3`;
-    scoreText.classList.add('fade-in');
-    
-    // Show final message
-    await sleep(500);
-    
-    let message = '';
-    if (score === 3) {
-        message = 'Да ты просто гений! Или подглядывала? В любом случае, ты лучшая!';
-    } else if (score === 2) {
-        message = 'Неплохо! Почти идеально. Ты всё равно самая лучшая!';
-    } else if (score === 1) {
-        message = 'Ну, главное не победа, а участие! Ты замечательная подруга!';
-    } else {
-        message = 'Эмм... Может, просто выпьем за твой день рождения? Ты всё равно любимая!';
-    }
-    
-    finalMessage.textContent = message;
-    finalMessage.style.opacity = '1';
-}}
+            const wrapper = await showTemplate('template-results');
+            
+            const resultsText = wrapper.querySelector('#results-text');
+            const scoreText = wrapper.querySelector('#score-text');
+            const finalMessage = wrapper.querySelector('#final-message');
+            
+            await typeText(resultsText, quizData.resultsSequence, 35);
+            
+            // Show score
+            scoreText.textContent = `Правильных ответов: ${score} из 3`;
+            scoreText.classList.add('fade-in');
+            
+            // Show final message
+            await sleep(500);
+            
+            let message = '';
+            if (score === 3) {
+                message = 'Да ты просто гений! Или подглядывала? В любом случае, ты лучшая!';
+            } else if (score === 2) {
+                message = 'Неплохо! Почти идеально. Ты всё равно самая лучшая!';
+            } else if (score === 1) {
+                message = 'Ну, главное не победа, а участие! Ты замечательная подруга!';
+            } else {
+                message = 'Эмм... Может, просто выпьем за твой день рождения? Ты всё равно любимая!';
+            }
+            
+            finalMessage.textContent = message;
+            finalMessage.style.opacity = '1';
+        }
 
         // ==================== SURPRISE FUNCTIONALITY ====================
         async function toggleSurprise() {
