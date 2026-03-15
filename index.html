@@ -149,11 +149,11 @@
             word-break: break-word;
         }
         
-        /* Media Container 4:5 Ratio */
+        /* Media Container 5:4 Horizontal Ratio */
         .media-container {
             position: relative;
             width: 100%;
-            padding-bottom: 125%; /* 4:5 Aspect Ratio */
+            padding-bottom: 80%; /* 4:5 Aspect Ratio (Horizontal) -> 4/5 = 0.8 */
             background: #eee;
             border-radius: 16px;
             overflow: hidden;
@@ -266,11 +266,11 @@
             transform: translateX(23px);
         }
         
-        /* Hidden Image */
+        /* Hidden Image - No background/shadow */
         .hidden-image {
             position: fixed;
             left: 70%;
-            bottom: -95%; /* Hidden by default (95% height) */
+            bottom: -95%; /* Hidden by default */
             transform: translateX(-50%);
             z-index: 90;
             max-width: 600px;
@@ -278,8 +278,7 @@
             height: auto;
             object-fit: contain;
             transition: bottom 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(74, 64, 53, 0.15);
+            /* Removed border-radius and box-shadow for transparent PNG */
         }
         
         .hidden-image.visible {
@@ -331,6 +330,31 @@
         
         @keyframes staggerIn {
             to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Confetti */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            top: -20px;
+            animation: confetti-fall linear forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
         }
         
         /* Reduced motion */
@@ -519,7 +543,7 @@
         let typingTimeout = null;
         let isSurpriseActive = false;
 
-        // ==================== AUDIO ELEMENTS ====================
+        // ==================== DOM ELEMENTS ====================
         const bgMusic = document.getElementById('bg-music');
         const soundCorrect = document.getElementById('sound-correct');
         const soundIncorrect = document.getElementById('sound-incorrect');
@@ -530,7 +554,6 @@
         function preloadAssets() {
             const images = ['755347937946415.png', '1.JPG', '2.JPG', '4.JPG'];
             const sounds = ['valerij_meladze_krasivo-482.mp3', 'aplodismentyi.mp3', 'neudacha.mp3'];
-            // Video '3.MP4' is preloaded by the browser when encountered or via explicit link
             const videos = ['3.MP4'];
             
             images.forEach(src => {
@@ -546,7 +569,37 @@
             videos.forEach(src => {
                 const video = document.createElement('video');
                 video.src = src;
+                video.preload = 'auto';
             });
+        }
+
+        // ==================== CONFETTI LOGIC ====================
+        function triggerConfetti() {
+            const container = document.createElement('div');
+            container.className = 'confetti-container';
+            document.body.appendChild(container);
+            
+            const colors = ['#C9A87C', '#E8D4C4', '#D4C4B0', '#7CB08A', '#C9B8A0', '#fff'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti-piece';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                
+                // Random shapes
+                if (Math.random() > 0.5) {
+                    confetti.style.borderRadius = '50%';
+                }
+                
+                container.appendChild(confetti);
+            }
+            
+            setTimeout(() => {
+                container.remove();
+            }, 5000);
         }
 
         // ==================== TYPING EFFECT ====================
@@ -585,7 +638,6 @@
             }
         }
         
-        // Simple typeText for single strings (used in rounds)
         async function typeSingleText(element, text, speed = 35) {
             element.textContent = '';
             for (let i = 0; i <= text.length; i++) {
@@ -634,6 +686,9 @@
 
         // ==================== WELCOME SCREEN ====================
         async function showWelcome() {
+            // Start preloading in background immediately
+            preloadAssets();
+
             const wrapper = await showTemplate('template-welcome');
             
             const typingText = wrapper.querySelector('#typing-text');
@@ -666,7 +721,6 @@
             const roundData = quizData[`round${roundNum}`];
             const wrapper = await showTemplate('template-round');
             
-            // Update UI Elements
             const labelEl = wrapper.querySelector('#round-label');
             const progressEl = wrapper.querySelector('#progress-fill');
             const mediaContainer = wrapper.querySelector('#round-media');
@@ -674,20 +728,21 @@
             const answersContainer = wrapper.querySelector('#answers-container');
             const nextBtn = wrapper.querySelector('.next-round-btn');
             
-            // Set Label & Progress
             labelEl.textContent = `Раунд ${roundNum} из ${TOTAL_ROUNDS}`;
             const progressPercent = ((roundNum - 1) / TOTAL_ROUNDS) * 100;
             progressEl.style.width = `${progressPercent}%`;
             
-            // Load Media
             mediaContainer.innerHTML = '';
+            
+            // Create Media Element
             if (roundData.type === 'video') {
                 const video = document.createElement('video');
                 video.src = roundData.src;
-                video.muted = true;
+                video.muted = true; // Muted by default
                 video.playsInline = true;
                 video.autoplay = true;
                 video.loop = true;
+                video.id = 'round-video'; // ID for easy access
                 mediaContainer.appendChild(video);
             } else {
                 const img = document.createElement('img');
@@ -696,14 +751,11 @@
                 mediaContainer.appendChild(img);
             }
             
-            // Reset State
             selectedAnswer = null;
             isConfirmed = false;
             
-            // Type Question
             await typeSingleText(questionEl, roundData.question, 35);
             
-            // Create Answers
             answersContainer.innerHTML = '';
             roundData.answers.forEach((answer, index) => {
                 const btn = document.createElement('button');
@@ -720,10 +772,9 @@
                     btn.classList.add('animate');
                 }, index * 100);
                 
-                btn.addEventListener('click', () => handleAnswerClick(btn, answersContainer, nextBtn));
+                btn.addEventListener('click', () => handleAnswerClick(btn, answersContainer, nextBtn, roundNum));
             });
             
-            // Next button handler
             nextBtn.addEventListener('click', () => {
                 if (roundNum < TOTAL_ROUNDS) {
                     showRound(roundNum + 1);
@@ -733,8 +784,14 @@
             }, { once: true });
         }
 
-        function handleAnswerClick(btn, container, nextBtn) {
+        function handleAnswerClick(btn, container, nextBtn, roundNum) {
             if (isConfirmed) return;
+            
+            // Round 3 Special Logic: Unmute video on first selection
+            if (roundNum === 3) {
+                const video = document.getElementById('round-video');
+                if (video) video.muted = false;
+            }
             
             if (selectedAnswer === btn) {
                 confirmAnswer(btn, container, nextBtn);
@@ -755,6 +812,7 @@
                 score++;
                 soundCorrect.currentTime = 0;
                 soundCorrect.play().catch(() => {});
+                triggerConfetti(); // Throw confetti
             } else {
                 soundIncorrect.currentTime = 0;
                 soundIncorrect.play().catch(() => {});
@@ -809,7 +867,6 @@
             surpriseToggle.setAttribute('aria-checked', isSurpriseActive);
             
             if (isSurpriseActive) {
-                // Wait 0.5s before showing
                 await sleep(500);
                 
                 bgMusic.currentTime = 0;
@@ -832,7 +889,6 @@
                 
                 surpriseImage.classList.add('visible');
             } else {
-                // Wait 0.5s before hiding
                 await sleep(500);
                 
                 const steps = 30;
@@ -859,8 +915,7 @@
 
         // ==================== INITIALIZATION ====================
         document.addEventListener('DOMContentLoaded', () => {
-            preloadAssets();
-            showWelcome();
+            showWelcome(); // Preloading is called inside showWelcome
         });
     </script>
 </body>
