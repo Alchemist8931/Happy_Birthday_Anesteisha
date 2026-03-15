@@ -675,6 +675,7 @@
         const surpriseImage = document.getElementById('surprise-image');
 
         // ==================== PRELOAD ASSETS ====================
+                // ==================== PRELOAD ASSETS ====================
         function preloadAssets() {
             const images = [
                 '755347937946415.png', '1.JPG', '2.JPG', '4.JPG', '5.JPG', '6.JPG', 
@@ -683,22 +684,32 @@
             const sounds = ['valerij_meladze_krasivo-482.mp3', 'aplodismentyi.mp3', 'neudacha.mp3'];
             const videos = ['3.MP4', '8.MP4'];
             
+            // Предзагрузка изображений
             images.forEach(src => {
                 const img = new Image();
                 img.src = src;
             });
             
+            // Предзагрузка звуков в память
             sounds.forEach(src => {
                 const audio = new Audio();
                 audio.src = src;
+                audio.preload = 'auto';
+                audio.load(); // Принудительно начинаем загрузку
             });
             
+            // Предзагрузка видео
             videos.forEach(src => {
                 const video = document.createElement('video');
                 video.src = src;
                 video.preload = 'auto';
             });
-        }
+
+            // Гарантируем загрузку аудио-элементов, используемых в HTML
+            if (bgMusic) bgMusic.load();
+            if (soundCorrect) soundCorrect.load();
+            if (soundIncorrect) soundIncorrect.load();
+        }}
 
         // ==================== CONFETTI LOGIC ====================
         function triggerConfetti() {
@@ -1256,6 +1267,9 @@
         });
 
         // ==================== INITIALIZATION ====================
+        // Запускаем предзагрузку немедленно, так как скрипт внизу body
+        preloadAssets();
+        
         document.addEventListener('DOMContentLoaded', () => {
             showWelcome();
         });
