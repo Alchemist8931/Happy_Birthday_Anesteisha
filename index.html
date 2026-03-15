@@ -1303,7 +1303,17 @@
                 });
             }
             
-            nextBtn.addEventListener('click', () => {
+                        nextBtn.addEventListener('click', () => {
+                // === FIX: Останавливаем видео перед переходом ===
+                // Это предотвращает блокировку аудиоканала в следующих раундах
+                const activeVideo = document.getElementById('round-video');
+                if (activeVideo) {
+                    activeVideo.pause();
+                    activeVideo.muted = true; 
+                    activeVideo.src = ""; // Очищаем источник, чтобы полностью освободить ресурсы
+                }
+                // ===============================================
+
                 if (roundNum < TOTAL_ROUNDS) {
                     showRound(roundNum + 1);
                 } else {
