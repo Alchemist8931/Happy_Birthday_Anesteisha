@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Викторина Поздравление</title>
+    <title>С прошедшим! подружаня :D</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SN Pro Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=SN+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
@@ -20,7 +23,7 @@
                         muted: '#8B7E6A',
                     },
                     fontFamily: {
-                        'sn': ['Source Sans 3', 'sans-serif'],
+                        'sn': ['"SN Pro"', 'Source Sans 3', 'sans-serif'],
                     }
                 }
             }
@@ -35,7 +38,7 @@
         }
         
         body {
-            font-family: 'Source Sans 3', sans-serif;
+            font-family: 'SN Pro', sans-serif;
             background: #FDF8F3;
             min-height: 100vh;
             overflow-x: hidden;
@@ -111,33 +114,59 @@
             z-index: 10;
             min-height: 100vh;
         }
-        
-        /* Templates */
-        .template {
-            display: none;
-            opacity: 0;
-            transition: opacity 0.6s ease;
-        }
-        
-        .template.active {
-            display: flex;
-            opacity: 1;
+
+        /* Glass Card Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
         }
         
         /* Typing Cursor */
         .typing-cursor {
             display: inline-block;
-            width: 2px;
-            height: 1.2em;
-            background: #C9A87C;
-            margin-left: 2px;
-            animation: blink 0.8s infinite;
-            vertical-align: text-bottom;
+            font-weight: 500;
+            color: #C9A87C;
+            animation: smoothBlink 1s ease-in-out infinite;
         }
         
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
+        .typing-cursor::after {
+            content: '_';
+        }
+        
+        @keyframes smoothBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        /* Typing Container (Textarea simulation) */
+        .typing-container {
+            text-align: left;
+            min-height: 1.5em;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        
+        /* Media Container 4:5 Ratio */
+        .media-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 125%; /* 4:5 Aspect Ratio */
+            background: #eee;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .media-container img,
+        .media-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
         /* Answer Buttons */
@@ -145,6 +174,7 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
+            backdrop-filter: blur(4px);
         }
         
         .answer-btn::before {
@@ -163,7 +193,7 @@
         
         .answer-btn.selected {
             border-color: #C9A87C;
-            background: rgba(201, 168, 124, 0.1);
+            background: rgba(201, 168, 124, 0.15);
             transform: scale(1.02);
         }
         
@@ -173,19 +203,19 @@
         
         .answer-btn.correct {
             border-color: #7CB08A;
-            background: rgba(124, 176, 138, 0.15);
+            background: rgba(124, 176, 138, 0.2);
             animation: correct-pulse 0.5s ease;
         }
         
         .answer-btn.incorrect {
             border-color: #C98787;
-            background: rgba(201, 135, 135, 0.15);
+            background: rgba(201, 135, 135, 0.2);
             animation: incorrect-shake 0.4s ease;
         }
         
         @keyframes correct-pulse {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            50% { transform: scale(1.03); }
         }
         
         @keyframes incorrect-shake {
@@ -237,24 +267,24 @@
         }
         
         /* Hidden Image */
-        /* Hidden Image */
-.hidden-image {
-    position: fixed;
-    bottom: -106%;
-    left: 70%;
-    transform: translateX(-50%);
-    z-index: 90;
-    max-width: 600px;
-    max-height: 80vh;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-    transition: bottom 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.hidden-image.visible {
-    bottom: 2%;
-}
+        .hidden-image {
+            position: fixed;
+            left: 70%;
+            bottom: -95%; /* Hidden by default (95% height) */
+            transform: translateX(-50%);
+            z-index: 90;
+            max-width: 600px;
+            width: 90%;
+            height: auto;
+            object-fit: contain;
+            transition: bottom 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(74, 64, 53, 0.15);
+        }
+        
+        .hidden-image.visible {
+            bottom: 5%; /* Visible position */
+        }
         
         /* Progress Bar */
         .progress-bar {
@@ -328,98 +358,55 @@
         <!-- Welcome Template -->
         <template id="template-welcome">
             <div class="min-h-screen flex flex-col items-center justify-center px-6 py-12">
-                <div class="max-w-2xl w-full text-center">
-                    <h1 class="text-4xl md:text-5xl font-semibold text-text mb-8 leading-tight">
+                <div class="max-w-2xl w-full">
+                    <!-- Invisible textarea simulation -->
+                    <div class="typing-container text-2xl md:text-3xl font-semibold text-text leading-relaxed">
                         <span id="typing-text"></span><span class="typing-cursor"></span>
-                    </h1>
+                    </div>
                     
-                    <button id="start-btn" class="mt-12 px-8 py-3 bg-accent/10 border border-accent/30 rounded-2xl text-text font-medium hover:bg-accent/20 hover:border-accent/50 transition-all duration-300 opacity-0 pointer-events-none">
-                        Начать викторину
-                    </button>
+                    <div class="mt-12 flex justify-start">
+                        <button id="start-btn" class="px-8 py-3 bg-accent/10 border border-accent/30 rounded-2xl text-text font-medium hover:bg-accent/20 hover:border-accent/50 transition-all duration-300 opacity-0 pointer-events-none">
+                            Начать викторину
+                        </button>
+                    </div>
                 </div>
             </div>
         </template>
         
-        <!-- Round 1 Template -->
-        <template id="template-round1">
-            <div class="min-h-screen flex flex-col items-center justify-center px-6 py-12">
-                <div class="max-w-2xl w-full">
-                    <div class="mb-8">
-                        <span class="text-sm text-muted uppercase tracking-wider">Раунд 1 из 3</span>
-                        <div class="progress-bar mt-2">
-                            <div class="progress-fill" style="width: 0%"></div>
+        <!-- Round Template (Generic for all rounds) -->
+        <template id="template-round">
+            <div class="min-h-screen flex flex-col items-center justify-center px-4 py-8 md:px-8">
+                <div class="w-full max-w-5xl glass-card rounded-3xl p-6 md:p-8">
+                    <div class="flex flex-col md:flex-row gap-6 md:gap-8">
+                        <!-- Media Side -->
+                        <div class="w-full md:w-2/5 flex-shrink-0">
+                            <div class="media-container bg-beige/30" id="round-media">
+                                <!-- Media will be inserted here -->
+                            </div>
+                        </div>
+                        
+                        <!-- Content Side -->
+                        <div class="flex-grow flex flex-col justify-center">
+                            <div class="mb-6">
+                                <span class="text-sm text-muted uppercase tracking-wider" id="round-label">Раунд 1 из 4</span>
+                                <div class="progress-bar mt-2">
+                                    <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            
+                            <h2 class="text-xl md:text-2xl font-semibold text-text mb-6 leading-tight">
+                                <span class="round-question typing-container"></span><span class="typing-cursor"></span>
+                            </h2>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="answers-container">
+                                <!-- Answers will be inserted here -->
+                            </div>
+                            
+                            <button class="next-round-btn mt-6 px-6 py-2 bg-accent/10 border border-accent/30 rounded-xl text-text font-medium hover:bg-accent/20 transition-all duration-300 opacity-0 pointer-events-none self-start">
+                                Далее
+                            </button>
                         </div>
                     </div>
-                    
-                    <h2 class="text-2xl md:text-3xl font-semibold text-text mb-2 leading-tight">
-                        <span class="round-question"></span><span class="typing-cursor"></span>
-                    </h2>
-                    
-                    <p class="text-muted text-sm mb-8">Выберите ответ, затем нажмите ещё раз для подтверждения</p>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="answers-1">
-                        <!-- Answers will be inserted here -->
-                    </div>
-                    
-                    <button class="next-round-btn mt-8 px-6 py-2 bg-accent/10 border border-accent/30 rounded-xl text-text font-medium hover:bg-accent/20 transition-all duration-300 opacity-0 pointer-events-none">
-                        Далее
-                    </button>
-                </div>
-            </div>
-        </template>
-        
-        <!-- Round 2 Template -->
-        <template id="template-round2">
-            <div class="min-h-screen flex flex-col items-center justify-center px-6 py-12">
-                <div class="max-w-2xl w-full">
-                    <div class="mb-8">
-                        <span class="text-sm text-muted uppercase tracking-wider">Раунд 2 из 3</span>
-                        <div class="progress-bar mt-2">
-                            <div class="progress-fill" style="width: 33%"></div>
-                        </div>
-                    </div>
-                    
-                    <h2 class="text-2xl md:text-3xl font-semibold text-text mb-2 leading-tight">
-                        <span class="round-question"></span><span class="typing-cursor"></span>
-                    </h2>
-                    
-                    <p class="text-muted text-sm mb-8">Выберите ответ, затем нажмите ещё раз для подтверждения</p>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="answers-2">
-                        <!-- Answers will be inserted here -->
-                    </div>
-                    
-                    <button class="next-round-btn mt-8 px-6 py-2 bg-accent/10 border border-accent/30 rounded-xl text-text font-medium hover:bg-accent/20 transition-all duration-300 opacity-0 pointer-events-none">
-                        Далее
-                    </button>
-                </div>
-            </div>
-        </template>
-        
-        <!-- Round 3 Template -->
-        <template id="template-round3">
-            <div class="min-h-screen flex flex-col items-center justify-center px-6 py-12">
-                <div class="max-w-2xl w-full">
-                    <div class="mb-8">
-                        <span class="text-sm text-muted uppercase tracking-wider">Раунд 3 из 3</span>
-                        <div class="progress-bar mt-2">
-                            <div class="progress-fill" style="width: 66%"></div>
-                        </div>
-                    </div>
-                    
-                    <h2 class="text-2xl md:text-3xl font-semibold text-text mb-2 leading-tight">
-                        <span class="round-question"></span><span class="typing-cursor"></span>
-                    </h2>
-                    
-                    <p class="text-muted text-sm mb-8">Выберите ответ, затем нажмите ещё раз для подтверждения</p>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="answers-3">
-                        <!-- Answers will be inserted here -->
-                    </div>
-                    
-                    <button class="next-round-btn mt-8 px-6 py-2 bg-accent/10 border border-accent/30 rounded-xl text-text font-medium hover:bg-accent/20 transition-all duration-300 opacity-0 pointer-events-none">
-                        Результаты
-                    </button>
                 </div>
             </div>
         </template>
@@ -427,7 +414,7 @@
         <!-- Results Template -->
         <template id="template-results">
             <div class="min-h-screen flex flex-col items-center justify-center px-6 py-12">
-                <div class="max-w-2xl w-full text-center">
+                <div class="max-w-2xl w-full text-center glass-card rounded-3xl p-8">
                     <div class="mb-8">
                         <span class="text-sm text-muted uppercase tracking-wider">Результаты</span>
                         <div class="progress-bar mt-2">
@@ -436,7 +423,7 @@
                     </div>
                     
                     <h2 class="text-3xl md:text-4xl font-semibold text-text mb-4">
-                        <span id="results-text"></span><span class="typing-cursor"></span>
+                        <span id="results-text" class="typing-container"></span><span class="typing-cursor"></span>
                     </h2>
                     
                     <p id="score-text" class="text-xl text-muted mt-4"></p>
@@ -470,44 +457,51 @@
 
     <script>
         // ==================== DATA ====================
+        const TOTAL_ROUNDS = 4;
+        
         const quizData = {
             round1: {
-                questionSequence: [
-                    { text: "Итак, первый вопрос! Какой цвет ты любишь больше всего? ", type: "normal" },
-                    { text: "Итак, первый вопрос! Какой цвет ты любишь больше всего? Кстати, это чисто для статистики, ", type: "normal" },
-                    { text: "Итак, первый вопрос! Какой цвет ты любишь больше всего? Кстати, это чисто для статистики, ничего личного... ", type: "final" }
-                ],
+                type: 'image',
+                src: '1.JPG',
+                question: "Эта фотография была сделана в тот момент, когда…",
                 answers: [
-                    { text: "Розовый, конечно!", correct: true },
-                    { text: "Черный, как моя душа", correct: false },
-                    { text: "Бежевый, как этот фон", correct: false },
-                    { text: "Все цвета радуги!", correct: false }
+                    { text: "мы готовились к экзамену", correct: true },
+                    { text: "мы придумывали бизнес", correct: false },
+                    { text: "мы решили что завтра начнём новую жизнь", correct: false },
+                    { text: "мы уже забыли почему собрались", correct: false }
                 ]
             },
             round2: {
-                questionSequence: [
-                    { text: "Второй вопрос! Сколько чашек кофе ты выпиваешь в день? ", type: "normal" },
-                    { text: "Второй вопрос! Сколько чашек кофе ты выпиваешь в день? Спрашиваю, потому что я переживаю за твоё сердечко ", type: "normal" },
-                    { text: "Второй вопрос! Сколько чашек кофе ты выпиваешь в день? Спрашиваю, потому что я переживаю... нет, не за тебя, а за кофейню напротив ", type: "final" }
-                ],
+                type: 'image',
+                src: '2.JPG',
+                question: "Почему мы вообще пили валокордин?",
                 answers: [
-                    { text: "Одну, я же леди", correct: false },
-                    { text: "5-6, норма же?", correct: true },
-                    { text: "Я пью чай, извините", correct: false },
-                    { text: "Кофе? У меня есть энергетики", correct: false }
+                    { text: "успокаивали нервы перед сессией", correct: false },
+                    { text: "провожали Настю на важное мероприятие 18+", correct: false },
+                    { text: "провожали Лизу на самолет", correct: true },
+                    { text: "не хватило денег на вино", correct: false }
                 ]
             },
             round3: {
-                questionSequence: [
-                    { text: "Финальный вопрос! Какой твой любимый праздник? ", type: "normal" },
-                    { text: "Финальный вопрос! Какой твой любимый праздник? Подсказка: правильный ответ сегодня ", type: "normal" },
-                    { text: "Финальный вопрос! Какой твой любимый праздник? Подсказка: ответ очевиден, но выбирай что хочешь ", type: "final" }
-                ],
+                type: 'video',
+                src: '3.MP4',
+                question: "Какой трек играет на улице?",
                 answers: [
-                    { text: "Новый год!", correct: false },
-                    { text: "8 марта, подарки же!", correct: false },
-                    { text: "Мой день рождения!", correct: true },
-                    { text: "Хэллоуин, люблю пугать", correct: false }
+                    { text: "Мой рок-н-ролл", correct: true },
+                    { text: "Жить в кайф", correct: false },
+                    { text: "Самба белого мотылька", correct: false },
+                    { text: "Мы просто сами поем на тихой улице", correct: false }
+                ]
+            },
+            round4: {
+                type: 'image',
+                src: '4.JPG',
+                question: "Чьи это ноги?",
+                answers: [
+                    { text: "Риты", correct: false },
+                    { text: "Ларисы", correct: false },
+                    { text: "Алины", correct: true },
+                    { text: "не знаю, мы снова оказались у незнакомых людей", correct: false }
                 ]
             },
             resultsSequence: [
@@ -529,15 +523,15 @@
         const bgMusic = document.getElementById('bg-music');
         const soundCorrect = document.getElementById('sound-correct');
         const soundIncorrect = document.getElementById('sound-incorrect');
-
-        // ==================== DOM ELEMENTS ====================
         const surpriseToggle = document.getElementById('surprise-toggle');
         const surpriseImage = document.getElementById('surprise-image');
 
         // ==================== PRELOAD ASSETS ====================
         function preloadAssets() {
-            const images = ['755347937946415.png'];
+            const images = ['755347937946415.png', '1.JPG', '2.JPG', '4.JPG'];
             const sounds = ['valerij_meladze_krasivo-482.mp3', 'aplodismentyi.mp3', 'neudacha.mp3'];
+            // Video '3.MP4' is preloaded by the browser when encountered or via explicit link
+            const videos = ['3.MP4'];
             
             images.forEach(src => {
                 const img = new Image();
@@ -548,46 +542,55 @@
                 const audio = new Audio();
                 audio.src = src;
             });
+            
+            videos.forEach(src => {
+                const video = document.createElement('video');
+                video.src = src;
+            });
         }
 
         // ==================== TYPING EFFECT ====================
-        async function typeText(element, sequence, speed = 40) {
+        async function typeText(element, sequence, speed = 50) {
             element.textContent = '';
             
             for (const seq of sequence) {
                 const text = seq.text;
                 
-                // Type text character by character
                 for (let i = 0; i <= text.length; i++) {
                     element.textContent = text.substring(0, i);
                     await sleep(speed);
                     
-                    // If this is the last sequence, keep typing to end
                     if (seq.type === 'final' && i === text.length) {
                         break;
                     }
                     
-                    // For non-final sequences, stop early
                     if (seq.type === 'normal' && i === text.length) {
-                        await sleep(400);
+                        await sleep(600);
                         break;
                     }
                 }
                 
-                // If not final, erase some text
                 if (seq.type !== 'final') {
-                    await sleep(600);
-                    const eraseTo = Math.floor(text.length * 0.3);
+                    await sleep(800);
+                    const eraseTo = 0;
                     
                     for (let i = text.length; i >= eraseTo; i--) {
                         element.textContent = text.substring(0, i);
-                        await sleep(20);
+                        await sleep(15);
                     }
-                    await sleep(300);
+                    await sleep(400);
                 } else {
-                    // Final text - we're done
                     break;
                 }
+            }
+        }
+        
+        // Simple typeText for single strings (used in rounds)
+        async function typeSingleText(element, text, speed = 35) {
+            element.textContent = '';
+            for (let i = 0; i <= text.length; i++) {
+                element.textContent = text.substring(0, i);
+                await sleep(speed);
             }
         }
 
@@ -599,62 +602,53 @@
 
         // ==================== TEMPLATE MANAGEMENT ====================
         function showTemplate(templateId) {
-    // Hide current template
-    if (currentTemplate) {
-        currentTemplate.classList.remove('active');
-        currentTemplate.classList.add('fade-out');
-    }
-    
-    return new Promise(resolve => {
-        setTimeout(() => {
-            const template = document.getElementById(templateId);
-            const content = template.content.cloneNode(true);
-            
-            // Remove old content if exists
-            const oldContent = document.querySelector('.template-content');
-            if (oldContent) {
-                oldContent.remove();
+            if (currentTemplate) {
+                currentTemplate.classList.remove('active');
+                currentTemplate.classList.add('fade-out');
             }
             
-            // Create new content wrapper
-            const wrapper = document.createElement('div');
-            wrapper.className = 'template-content active';
-            wrapper.appendChild(content);
-            document.querySelector('.main-content').appendChild(wrapper);
-            
-            currentTemplate = wrapper;
-            wrapper.classList.add('fade-in');
-            
-            // Small delay to ensure DOM is ready
-            requestAnimationFrame(() => {
-                resolve(wrapper);
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    const template = document.getElementById(templateId);
+                    const content = template.content.cloneNode(true);
+                    
+                    const oldContent = document.querySelector('.template-content');
+                    if (oldContent) {
+                        oldContent.remove();
+                    }
+                    
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'template-content active';
+                    wrapper.appendChild(content);
+                    document.querySelector('.main-content').appendChild(wrapper);
+                    
+                    currentTemplate = wrapper;
+                    wrapper.classList.add('fade-in');
+                    
+                    requestAnimationFrame(() => {
+                        resolve(wrapper);
+                    });
+                }, 400);
             });
-        }, 400);
-    });
-}
+        }
 
-                // ==================== WELCOME SCREEN ====================
+        // ==================== WELCOME SCREEN ====================
         async function showWelcome() {
             const wrapper = await showTemplate('template-welcome');
             
             const typingText = wrapper.querySelector('#typing-text');
             const startBtn = wrapper.querySelector('#start-btn');
             
-            if (!typingText) {
-                console.error('typingText element not found');
-                return;
-            }
+            if (!typingText) return;
             
             const welcomeSequence = [
-                { text: "Привет! Сегодня особенный день... ", type: "normal" },
-                { text: "Привет! Сегодня особенный день... Погоди, это же твой день рождения? ", type: "normal" },
-                { text: "Привет! Сегодня особенный день! Или нет... Подожди, дай я проверю календарь ", type: "normal" },
-                { text: "Привет! Да, сегодня твой день! Готова к небольшой викторине в твою честь?", type: "final" }
+                { text: "Hellooooo!", type: "normal" },
+                { text: "Представь что сегодня твой день,\nЯ надеюсь ты взяла вкусняшки и чай?", type: "normal" },
+                { text: "ВАЖНО…\nПроверь что бы рядом никого не было кроме тебя и пельмешки\nИнформация сугубо личного характера", type: "normal" },
             ];
             
-            await typeText(typingText, welcomeSequence, 35);
+            await typeText(typingText, welcomeSequence, 50);
             
-            // Show start button
             if (startBtn) {
                 startBtn.style.opacity = '1';
                 startBtn.style.pointerEvents = 'auto';
@@ -669,61 +663,82 @@
 
         // ==================== ROUND LOGIC ====================
         async function showRound(roundNum) {
-    const roundData = quizData[`round${roundNum}`];
-    const wrapper = await showTemplate(`template-round${roundNum}`);
-    
-    const questionEl = wrapper.querySelector('.round-question');
-    const answersContainer = wrapper.querySelector(`#answers-${roundNum}`);
-    const nextBtn = wrapper.querySelector('.next-round-btn');
-    
-    // Reset state
-    selectedAnswer = null;
-    isConfirmed = false;
-    
-    // Type question
-    await typeText(questionEl, roundData.questionSequence, 35);
-    
-    // Create answer buttons with stagger animation
-    answersContainer.innerHTML = '';
-    roundData.answers.forEach((answer, index) => {
-        const btn = document.createElement('button');
-        btn.className = 'answer-btn stagger-item p-4 bg-white/50 border border-warm rounded-xl text-left text-text hover:bg-white/70 transition-all duration-300';
-        btn.innerHTML = `
-            <span class="block font-medium">${String.fromCharCode(65 + index)}.</span>
-            <span class="block mt-1">${answer.text}</span>
-        `;
-        btn.dataset.correct = answer.correct;
-        btn.dataset.index = index;
-        
-        answersContainer.appendChild(btn);
-        
-        // Stagger animation
-        setTimeout(() => {
-            btn.classList.add('animate');
-        }, index * 100);
-        
-        // Click handler
-        btn.addEventListener('click', () => handleAnswerClick(btn, answersContainer, nextBtn));
-    });
-    
-    // Next button handler
-    nextBtn.addEventListener('click', () => {
-        if (roundNum < 3) {
-            showRound(roundNum + 1);
-        } else {
-            showResults();
+            const roundData = quizData[`round${roundNum}`];
+            const wrapper = await showTemplate('template-round');
+            
+            // Update UI Elements
+            const labelEl = wrapper.querySelector('#round-label');
+            const progressEl = wrapper.querySelector('#progress-fill');
+            const mediaContainer = wrapper.querySelector('#round-media');
+            const questionEl = wrapper.querySelector('.round-question');
+            const answersContainer = wrapper.querySelector('#answers-container');
+            const nextBtn = wrapper.querySelector('.next-round-btn');
+            
+            // Set Label & Progress
+            labelEl.textContent = `Раунд ${roundNum} из ${TOTAL_ROUNDS}`;
+            const progressPercent = ((roundNum - 1) / TOTAL_ROUNDS) * 100;
+            progressEl.style.width = `${progressPercent}%`;
+            
+            // Load Media
+            mediaContainer.innerHTML = '';
+            if (roundData.type === 'video') {
+                const video = document.createElement('video');
+                video.src = roundData.src;
+                video.muted = true;
+                video.playsInline = true;
+                video.autoplay = true;
+                video.loop = true;
+                mediaContainer.appendChild(video);
+            } else {
+                const img = document.createElement('img');
+                img.src = roundData.src;
+                img.alt = `Раунд ${roundNum}`;
+                mediaContainer.appendChild(img);
+            }
+            
+            // Reset State
+            selectedAnswer = null;
+            isConfirmed = false;
+            
+            // Type Question
+            await typeSingleText(questionEl, roundData.question, 35);
+            
+            // Create Answers
+            answersContainer.innerHTML = '';
+            roundData.answers.forEach((answer, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn stagger-item p-4 bg-white/50 border border-warm rounded-xl text-left text-text hover:bg-white/70 transition-all duration-300';
+                btn.innerHTML = `
+                    <span class="block font-medium text-muted">${String.fromCharCode(65 + index)}.</span>
+                    <span class="block mt-1">${answer.text}</span>
+                `;
+                btn.dataset.correct = answer.correct;
+                
+                answersContainer.appendChild(btn);
+                
+                setTimeout(() => {
+                    btn.classList.add('animate');
+                }, index * 100);
+                
+                btn.addEventListener('click', () => handleAnswerClick(btn, answersContainer, nextBtn));
+            });
+            
+            // Next button handler
+            nextBtn.addEventListener('click', () => {
+                if (roundNum < TOTAL_ROUNDS) {
+                    showRound(roundNum + 1);
+                } else {
+                    showResults();
+                }
+            }, { once: true });
         }
-    }, { once: true });
-}
 
         function handleAnswerClick(btn, container, nextBtn) {
             if (isConfirmed) return;
             
             if (selectedAnswer === btn) {
-                // Second click - confirm
                 confirmAnswer(btn, container, nextBtn);
             } else {
-                // First click - select
                 container.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
                 btn.classList.add('selected');
                 selectedAnswer = btn;
@@ -736,7 +751,6 @@
             
             const isCorrect = btn.dataset.correct === 'true';
             
-            // Play sound
             if (isCorrect) {
                 score++;
                 soundCorrect.currentTime = 0;
@@ -746,10 +760,8 @@
                 soundIncorrect.play().catch(() => {});
             }
             
-            // Wait 2 seconds before showing correct answer
             await sleep(2000);
             
-            // Show correct answer
             container.querySelectorAll('.answer-btn').forEach(b => {
                 if (b.dataset.correct === 'true') {
                     b.classList.add('correct');
@@ -758,13 +770,11 @@
                 }
             });
             
-            // Show next button
             nextBtn.style.opacity = '1';
             nextBtn.style.pointerEvents = 'auto';
         }
 
         // ==================== RESULTS ====================
-                // ==================== RESULTS ====================
         async function showResults() {
             const wrapper = await showTemplate('template-results');
             
@@ -774,22 +784,18 @@
             
             await typeText(resultsText, quizData.resultsSequence, 35);
             
-            // Show score
-            scoreText.textContent = `Правильных ответов: ${score} из 3`;
+            scoreText.textContent = `Правильных ответов: ${score} из ${TOTAL_ROUNDS}`;
             scoreText.classList.add('fade-in');
             
-            // Show final message
             await sleep(500);
             
             let message = '';
-            if (score === 3) {
-                message = 'Да ты просто гений! Или подглядывала? В любом случае, ты лучшая!';
-            } else if (score === 2) {
-                message = 'Неплохо! Почти идеально. Ты всё равно самая лучшая!';
-            } else if (score === 1) {
-                message = 'Ну, главное не победа, а участие! Ты замечательная подруга!';
+            if (score === TOTAL_ROUNDS) {
+                message = 'Идеально! Ты vraiment лучшая!';
+            } else if (score >= TOTAL_ROUNDS / 2) {
+                message = 'Отличный результат! Ты замечательная подруга!';
             } else {
-                message = 'Эмм... Может, просто выпьем за твой день рождения? Ты всё равно любимая!';
+                message = 'Главное не победа, а участие! С днём рождения!';
             }
             
             finalMessage.textContent = message;
@@ -803,14 +809,15 @@
             surpriseToggle.setAttribute('aria-checked', isSurpriseActive);
             
             if (isSurpriseActive) {
-                // Play music with fade in
+                // Wait 0.5s before showing
+                await sleep(500);
+                
                 bgMusic.currentTime = 0;
                 bgMusic.volume = 0;
                 
                 try {
                     await bgMusic.play();
                     
-                    // Fade in volume
                     const fadeDuration = 3000;
                     const steps = 60;
                     const stepDuration = fadeDuration / steps;
@@ -823,10 +830,11 @@
                     console.log('Audio playback failed:', e);
                 }
                 
-                // Show image
                 surpriseImage.classList.add('visible');
             } else {
-                // Fade out music
+                // Wait 0.5s before hiding
+                await sleep(500);
+                
                 const steps = 30;
                 const stepDuration = 50;
                 
@@ -836,8 +844,6 @@
                 }
                 
                 bgMusic.pause();
-                
-                // Hide image
                 surpriseImage.classList.remove('visible');
             }
         }
