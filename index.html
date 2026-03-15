@@ -141,7 +141,7 @@
             50% { opacity: 0; }
         }
         
-        /* Typing Container (Textarea simulation) */
+        /* Typing Container */
         .typing-container {
             text-align: left;
             min-height: 1.5em;
@@ -149,11 +149,11 @@
             word-break: break-word;
         }
         
-        /* Media Container 5:4 Horizontal Ratio */
+        /* Media Container */
         .media-container {
             position: relative;
             width: 100%;
-            padding-bottom: 80%; /* 4:5 Aspect Ratio (Horizontal) -> 4/5 = 0.8 */
+            padding-bottom: 80%; 
             background: #eee;
             border-radius: 16px;
             overflow: hidden;
@@ -266,11 +266,11 @@
             transform: translateX(23px);
         }
         
-        /* Hidden Image - No background/shadow */
+        /* Hidden Image */
         .hidden-image {
             position: fixed;
             left: 70%;
-            bottom: -95%; /* Hidden by default */
+            bottom: -95%; 
             transform: translateX(-50%);
             z-index: 90;
             max-width: 600px;
@@ -278,11 +278,10 @@
             height: auto;
             object-fit: contain;
             transition: bottom 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            /* Removed border-radius and box-shadow for transparent PNG */
         }
         
         .hidden-image.visible {
-            bottom: 5%; /* Visible position */
+            bottom: 5%; 
         }
         
         /* Progress Bar */
@@ -332,7 +331,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-                /* Confetti Container */
+        /* Confetti Container */
         .confetti-container {
             position: fixed;
             top: 0;
@@ -342,7 +341,7 @@
             pointer-events: none;
             z-index: 9999;
             overflow: hidden;
-            perspective: 1000px; /* Важно для 3D вращения */
+            perspective: 1000px;
         }
 
         .confetti-piece {
@@ -350,11 +349,9 @@
             width: 12px;
             height: 12px;
             top: -20px;
-            /* Анимация теперь управляется JS, но оставим transition для плавности */
             will-change: transform; 
         }
         
-        /* Стили для "дождика" (ленточек) */
         .confetti-ribbon {
             position: absolute;
             width: 8px;
@@ -364,6 +361,96 @@
             will-change: transform;
         }
         
+        /* Input Field Styles */
+        .text-input-field {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid #E8DDD0;
+            border-radius: 12px;
+            font-family: 'SN Pro', sans-serif;
+            font-size: 1rem;
+            color: #4A4035;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        .text-input-field:focus {
+            border-color: #C9A87C;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Slider Styles (Round 7) */
+        .slider-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .slide {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .slide .item {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: all 0.5s ease;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .slide .item.active {
+            opacity: 1;
+            z-index: 1;
+        }
+
+        .slide .item.prev {
+            transform: translateX(-100%);
+        }
+        .slide .item.next {
+            transform: translateX(100%);
+        }
+        
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(201, 168, 124, 0.3);
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #4A4035;
+            transition: all 0.3s;
+            backdrop-filter: blur(4px);
+        }
+        
+        .slider-btn:hover {
+            background: rgba(201, 168, 124, 0.3);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .slider-btn.prev { left: 10px; }
+        .slider-btn.next { right: 10px; }
+        
+        /* Magnifying Glass Cursor */
+        .magnify-cursor {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="%23C9A87C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>') 16 16, zoom-in;
+        }
+
     </style>
 </head>
 <body>
@@ -382,7 +469,6 @@
         <template id="template-welcome">
             <div class="min-h-screen flex flex-col items-center justify-center px-6 py-12">
                 <div class="max-w-2xl w-full">
-                    <!-- Invisible textarea simulation -->
                     <div class="typing-container text-2xl md:text-3xl font-semibold text-text leading-relaxed">
                         <span id="typing-text"></span><span class="typing-cursor"></span>
                     </div>
@@ -396,7 +482,7 @@
             </div>
         </template>
         
-        <!-- Round Template (Generic for all rounds) -->
+        <!-- Round Template -->
         <template id="template-round">
             <div class="min-h-screen flex flex-col items-center justify-center px-4 py-8 md:px-8">
                 <div class="w-full max-w-5xl glass-card rounded-3xl p-6 md:p-8">
@@ -411,7 +497,7 @@
                         <!-- Content Side -->
                         <div class="flex-grow flex flex-col justify-center">
                             <div class="mb-6">
-                                <span class="text-sm text-muted uppercase tracking-wider" id="round-label">Раунд 1 из 4</span>
+                                <span class="text-sm text-muted uppercase tracking-wider" id="round-label">Раунд 1 из 8</span>
                                 <div class="progress-bar mt-2">
                                     <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
                                 </div>
@@ -421,8 +507,8 @@
                                 <span class="round-question typing-container"></span><span class="typing-cursor"></span>
                             </h2>
                             
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="answers-container">
-                                <!-- Answers will be inserted here -->
+                            <div id="answers-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <!-- Answers or Input will be inserted here -->
                             </div>
                             
                             <button class="next-round-btn mt-6 px-6 py-2 bg-accent/10 border border-accent/30 rounded-xl text-text font-medium hover:bg-accent/20 transition-all duration-300 opacity-0 pointer-events-none self-start">
@@ -480,7 +566,7 @@
 
     <script>
         // ==================== DATA ====================
-        const TOTAL_ROUNDS = 4;
+        const TOTAL_ROUNDS = 8;
         
         const quizData = {
             round1: {
@@ -527,6 +613,44 @@
                     { text: "не знаю, мы снова оказались у незнакомых людей", correct: false }
                 ]
             },
+            round5: {
+                type: 'input',
+                src: '5.JPG',
+                question: "Где сделано это фото? (напиши в строку ответ названием песни Noize MC)",
+                correctAnswer: "Питерские крыши",
+                inputPlaceholder: "Введите название песни..."
+            },
+            round6: {
+                type: 'image',
+                src: '6.JPG',
+                question: "Почему мы такие счастливые на этом фото?",
+                answers: [
+                    { text: "успели в магазин до закрытия", correct: false },
+                    { text: "нашли вино по акции", correct: false },
+                    { text: "выпили уже 3 бутылки", correct: false },
+                    { text: "всё сразу", correct: true }
+                ]
+            },
+            round7: {
+                type: 'slider', // Special type
+                images: ['7.1.JPG', '7.2.JPG', '7.3.JPG', '7.4.JPG'],
+                question: "Найди 10 отличий",
+                correctAnswer: ["отличий нет", "их нет"],
+                inputPlaceholder: "Введи ответ...",
+                attempts: 3,
+                hint: "а они есть?",
+                successText: "правильно, даже Гугл не может нас отличить..",
+                successImage: '7.5.JPG'
+            },
+            round8: {
+                type: 'video',
+                src: '8.MP4',
+                question: "Cмогли ли мы взорвать хлопушку или остались без праздника?",
+                answers: [
+                    { text: "Да", correct: true },
+                    { text: "Нет", correct: false }
+                ]
+            },
             resultsSequence: [
                 { text: "Поздравляю! Ты прошла викторину! ", type: "normal" },
                 { text: "Поздравляю! Ты прошла викторину! Хотя честно говоря, вопросы были так себе ", type: "normal" },
@@ -541,6 +665,7 @@
         let isConfirmed = false;
         let typingTimeout = null;
         let isSurpriseActive = false;
+        let roundAttempts = 0;
 
         // ==================== DOM ELEMENTS ====================
         const bgMusic = document.getElementById('bg-music');
@@ -551,9 +676,12 @@
 
         // ==================== PRELOAD ASSETS ====================
         function preloadAssets() {
-            const images = ['755347937946415.png', '1.JPG', '2.JPG', '4.JPG'];
+            const images = [
+                '755347937946415.png', '1.JPG', '2.JPG', '4.JPG', '5.JPG', '6.JPG', 
+                '7.1.JPG', '7.2.JPG', '7.3.JPG', '7.4.JPG', '7.5.JPG'
+            ];
             const sounds = ['valerij_meladze_krasivo-482.mp3', 'aplodismentyi.mp3', 'neudacha.mp3'];
-            const videos = ['3.MP4'];
+            const videos = ['3.MP4', '8.MP4'];
             
             images.forEach(src => {
                 const img = new Image();
@@ -572,40 +700,32 @@
             });
         }
 
-                // ==================== CONFETTI LOGIC (Advanced Physics) ====================
+        // ==================== CONFETTI LOGIC ====================
         function triggerConfetti() {
             const container = document.createElement('div');
             container.className = 'confetti-container';
             document.body.appendChild(container);
             
             const colors = ['#C9A87C', '#E8D4C4', '#D4C4B0', '#7CB08A', '#C9B8A0', '#ffffff', '#D4B896'];
-            const particleCount = 100; // Оптимизированное количество
-            
+            const particleCount = 100;
             const particles = [];
             
             for (let i = 0; i < particleCount; i++) {
-                // Определяем тип частицы для разной физики
                 const typeRandom = Math.random();
-                let type, gravity, drag, size, shape;
+                let gravity, drag, size, shape;
                 
                 if (typeRandom < 0.33) {
-                    // Тип 1: Легкие хлопья (падают медленно, много виляют)
-                    type = 'flake';
-                    gravity = 0.03 + Math.random() * 0.02; // Очень медленно
-                    drag = 0.97; // Высокое сопротивление воздуха
+                    gravity = 0.03 + Math.random() * 0.02; 
+                    drag = 0.97; 
                     size = 8;
                     shape = 'circle';
                 } else if (typeRandom < 0.66) {
-                    // Тип 2: Ленты (средняя скорость, стабильное падение)
-                    type = 'ribbon';
                     gravity = 0.06 + Math.random() * 0.03;
                     drag = 0.98;
-                    size = 20; // Длина ленты
+                    size = 20; 
                     shape = 'ribbon';
                 } else {
-                    // Тип 3: Квадраты (тяжелее, падают быстрее, мало виляют)
-                    type = 'square';
-                    gravity = 0.09 + Math.random() * 0.03; // Относительно быстрее
+                    gravity = 0.09 + Math.random() * 0.03;
                     drag = 0.99;
                     size = 10;
                     shape = 'square';
@@ -613,7 +733,6 @@
                 
                 const el = document.createElement('div');
                 
-                // Настройка стилей в зависимости от формы
                 if (shape === 'ribbon') {
                     el.className = 'confetti-ribbon';
                     el.style.width = '6px';
@@ -630,8 +749,8 @@
                 const particle = {
                     el: el,
                     x: Math.random() * window.innerWidth,
-                    y: -20 - Math.random() * 100, // Разброс по высоте при старте
-                    vx: (Math.random() - 0.5) * 4, // Меньше разброс по горизонту в начале
+                    y: -20 - Math.random() * 100, 
+                    vx: (Math.random() - 0.5) * 4, 
                     vy: Math.random() * 2, 
                     rotation: Math.random() * 360,
                     rotationSpeed: (Math.random() - 0.5) * 10,
@@ -647,48 +766,30 @@
                 container.appendChild(el);
             }
             
-            // Расчет границ исчезновения
-            const fadeStart = window.innerHeight * 0.2; // Начало растворения (20% сверху)
-            const fadeEnd = window.innerHeight * 0.5;   // Полное исчезновение (центр)
+            const fadeStart = window.innerHeight * 0.2; 
+            const fadeEnd = window.innerHeight * 0.5;   
             
             let animationId;
             function animate() {
                 let activeParticles = 0;
                 
                 particles.forEach(p => {
-                    // Если частица еще видима
                     if (p.opacity > 0) {
                         activeParticles++;
-                        
-                        // Обновление физики
                         p.angle += p.oscillationSpeed;
-                        
-                        // Виляние влево-вправо
                         p.x += Math.sin(p.angle) * 0.3; 
-                        
-                        // Применение гравитации
                         p.vy += p.gravity;
-                        
-                        // Применение скорости
                         p.y += p.vy;
                         p.x += p.vx;
-                        
-                        // Сопротивление воздуха (замедляет горизонтальный полет)
                         p.vx *= p.drag;
-                        
-                        // Вращение
                         p.rotation += p.rotationSpeed;
                         
-                        // --- Логика растворения ---
                         if (p.y > fadeStart) {
-                            // Прозрачность уменьшается линейно от fadeStart до fadeEnd
                             const progress = (p.y - fadeStart) / (fadeEnd - fadeStart);
                             p.opacity = Math.max(0, 1 - progress);
                         }
                         
-                        // Применение трансформаций
                         const transform = `translate3d(${p.x}px, ${p.y}px, 0) rotateX(${p.rotation}deg) rotateY(${p.rotation}deg) rotateZ(${p.rotation / 2}deg)`;
-                        
                         p.el.style.transform = transform;
                         p.el.style.opacity = p.opacity;
                     }
@@ -789,11 +890,8 @@
 
         // ==================== WELCOME SCREEN ====================
         async function showWelcome() {
-            // Start preloading in background immediately
             preloadAssets();
-
             const wrapper = await showTemplate('template-welcome');
-            
             const typingText = wrapper.querySelector('#typing-text');
             const startBtn = wrapper.querySelector('#start-btn');
             
@@ -836,47 +934,189 @@
             progressEl.style.width = `${progressPercent}%`;
             
             mediaContainer.innerHTML = '';
+            answersContainer.innerHTML = '';
             
-            // Create Media Element
-            if (roundData.type === 'video') {
+            // Reset state
+            selectedAnswer = null;
+            isConfirmed = false;
+            roundAttempts = 0;
+            
+            // --- Media Loading ---
+            if (roundData.type === 'slider') {
+                // Create Slider
+                mediaContainer.innerHTML = `
+                    <div class="slider-container">
+                        <div class="slide" id="slide-track"></div>
+                        <button class="slider-btn prev">◁</button>
+                        <button class="slider-btn next">▷</button>
+                    </div>
+                `;
+                mediaContainer.classList.add('magnify-cursor');
+                
+                const track = mediaContainer.querySelector('#slide-track');
+                roundData.images.forEach((src, index) => {
+                    const item = document.createElement('div');
+                    item.className = `item ${index === 0 ? 'active' : ''}`;
+                    item.style.backgroundImage = `url('${src}')`;
+                    track.appendChild(item);
+                });
+                
+                // Slider Logic
+                const items = track.querySelectorAll('.item');
+                let currentIndex = 0;
+                
+                const updateSlider = (newIndex) => {
+                    items[currentIndex].classList.remove('active');
+                    items[currentIndex].classList.add(newIndex > currentIndex ? 'next' : 'prev');
+                    
+                    items[newIndex].classList.remove('next', 'prev');
+                    items[newIndex].classList.add('active');
+                    
+                    currentIndex = newIndex;
+                };
+                
+                mediaContainer.querySelector('.next').addEventListener('click', () => {
+                    const newIndex = (currentIndex + 1) % items.length;
+                    updateSlider(newIndex);
+                });
+                
+                mediaContainer.querySelector('.prev').addEventListener('click', () => {
+                    const newIndex = (currentIndex - 1 + items.length) % items.length;
+                    updateSlider(newIndex);
+                });
+                
+            } else if (roundData.type === 'video') {
                 const video = document.createElement('video');
                 video.src = roundData.src;
-                video.muted = true; // Muted by default
+                video.muted = true;
                 video.playsInline = true;
                 video.autoplay = true;
                 video.loop = true;
-                video.id = 'round-video'; // ID for easy access
+                video.id = 'round-video';
                 mediaContainer.appendChild(video);
             } else {
+                // Image
                 const img = document.createElement('img');
                 img.src = roundData.src;
                 img.alt = `Раунд ${roundNum}`;
                 mediaContainer.appendChild(img);
             }
             
-            selectedAnswer = null;
-            isConfirmed = false;
-            
             await typeSingleText(questionEl, roundData.question, 35);
             
-            answersContainer.innerHTML = '';
-            roundData.answers.forEach((answer, index) => {
-                const btn = document.createElement('button');
-                btn.className = 'answer-btn stagger-item p-4 bg-white/50 border border-warm rounded-xl text-left text-text hover:bg-white/70 transition-all duration-300';
-                btn.innerHTML = `
-                    <span class="block font-medium text-muted">${String.fromCharCode(65 + index)}.</span>
-                    <span class="block mt-1">${answer.text}</span>
+            // --- Answers / Input Loading ---
+            if (roundData.type === 'input' || roundData.type === 'slider') {
+                // Create Input Form
+                const form = document.createElement('div');
+                form.className = 'flex flex-col gap-3 w-full';
+                form.innerHTML = `
+                    <input type="text" id="text-answer" class="text-input-field" placeholder="${roundData.inputPlaceholder || 'Введите ответ...'}">
+                    <button id="submit-answer" class="px-6 py-2 bg-accent/20 border border-accent/40 rounded-xl text-text font-medium hover:bg-accent/30 transition-all self-start">Ответить</button>
+                    <p id="attempt-hint" class="text-sm text-muted opacity-0"></p>
                 `;
-                btn.dataset.correct = answer.correct;
+                answersContainer.appendChild(form);
                 
-                answersContainer.appendChild(btn);
+                const input = form.querySelector('#text-answer');
+                const submitBtn = form.querySelector('#submit-answer');
+                const hintEl = form.querySelector('#attempt-hint');
                 
-                setTimeout(() => {
-                    btn.classList.add('animate');
-                }, index * 100);
+                // Special Round 7 Logic
+                if (roundData.type === 'slider') {
+                    roundAttempts = 3;
+                    hintEl.textContent = `Осталось попыток: ${roundAttempts}`;
+                    hintEl.style.opacity = 1;
+                }
                 
-                btn.addEventListener('click', () => handleAnswerClick(btn, answersContainer, nextBtn, roundNum));
-            });
+                submitBtn.addEventListener('click', async () => {
+                    const val = input.value.trim().toLowerCase();
+                    let isCorrect = false;
+                    
+                    // Check logic
+                    if (roundData.type === 'slider') {
+                        // Round 7 specific checks
+                        const correctAnswers = roundData.correctAnswer.map(a => a.toLowerCase());
+                        isCorrect = correctAnswers.includes(val);
+                        
+                        if (!isCorrect) {
+                            roundAttempts--;
+                            hintEl.textContent = `Осталось попыток: ${roundAttempts}`;
+                            soundIncorrect.currentTime = 0;
+                            soundIncorrect.play().catch(() => {});
+                            
+                            if (roundAttempts <= 0) {
+                                hintEl.textContent = roundData.hint;
+                                input.disabled = true;
+                                submitBtn.disabled = true;
+                                submitBtn.classList.add('opacity-50');
+                            }
+                        } else {
+                            isConfirmed = true;
+                            score++;
+                            soundCorrect.currentTime = 0;
+                            soundCorrect.play().catch(() => {});
+                            triggerConfetti();
+                            
+                            // Show success state
+                            answersContainer.innerHTML = `
+                                <div class="flex flex-col gap-4 w-full">
+                                    <p class="text-lg font-semibold text-text">${roundData.successText}</p>
+                                    <img src="${roundData.successImage}" class="w-full rounded-xl mt-2 fade-in" style="max-width: 300px;">
+                                </div>
+                            `;
+                            nextBtn.style.opacity = '1';
+                            nextBtn.style.pointerEvents = 'auto';
+                        }
+                        
+                    } else {
+                        // Standard Input Check (Round 5)
+                        if (val === roundData.correctAnswer.toLowerCase()) {
+                            isCorrect = true;
+                        }
+                        
+                        if (isCorrect) {
+                            isConfirmed = true;
+                            score++;
+                            soundCorrect.currentTime = 0;
+                            soundCorrect.play().catch(() => {});
+                            triggerConfetti();
+                            
+                            input.classList.add('border-[#7CB08A]');
+                            input.disabled = true;
+                            submitBtn.disabled = true;
+                            submitBtn.textContent = "Верно!";
+                            submitBtn.classList.add('bg-[rgba(124,176,138,0.2)]');
+                            
+                            nextBtn.style.opacity = '1';
+                            nextBtn.style.pointerEvents = 'auto';
+                        } else {
+                            soundIncorrect.currentTime = 0;
+                            soundIncorrect.play().catch(() => {});
+                            input.classList.add('border-[#C98787]');
+                            setTimeout(() => input.classList.remove('border-[#C98787]'), 500);
+                        }
+                    }
+                });
+                
+            } else {
+                // Standard Answers (Grid buttons)
+                roundData.answers.forEach((answer, index) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'answer-btn stagger-item p-4 bg-white/50 border border-warm rounded-xl text-left text-text hover:bg-white/70 transition-all duration-300';
+                    btn.innerHTML = `
+                        <span class="block font-medium text-muted">${String.fromCharCode(65 + index)}.</span>
+                        <span class="block mt-1">${answer.text}</span>
+                    `;
+                    btn.dataset.correct = answer.correct;
+                    
+                    answersContainer.appendChild(btn);
+                    
+                    setTimeout(() => {
+                        btn.classList.add('animate');
+                    }, index * 100);
+                    
+                    btn.addEventListener('click', () => handleAnswerClick(btn, answersContainer, nextBtn, roundNum));
+                });
+            }
             
             nextBtn.addEventListener('click', () => {
                 if (roundNum < TOTAL_ROUNDS) {
@@ -890,7 +1130,6 @@
         function handleAnswerClick(btn, container, nextBtn, roundNum) {
             if (isConfirmed) return;
             
-            // Round 3 Special Logic: Unmute video on first selection
             if (roundNum === 3) {
                 const video = document.getElementById('round-video');
                 if (video) video.muted = false;
@@ -915,13 +1154,13 @@
                 score++;
                 soundCorrect.currentTime = 0;
                 soundCorrect.play().catch(() => {});
-                triggerConfetti(); // Throw confetti
+                triggerConfetti(); 
             } else {
                 soundIncorrect.currentTime = 0;
                 soundIncorrect.play().catch(() => {});
             }
             
-            await sleep(2000);
+            await sleep(1500);
             
             container.querySelectorAll('.answer-btn').forEach(b => {
                 if (b.dataset.correct === 'true') {
@@ -1018,7 +1257,7 @@
 
         // ==================== INITIALIZATION ====================
         document.addEventListener('DOMContentLoaded', () => {
-            showWelcome(); // Preloading is called inside showWelcome
+            showWelcome();
         });
     </script>
 </body>
