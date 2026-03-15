@@ -572,110 +572,136 @@
             });
         }
 
-        // ==================== CONFETTI LOGIC ====================
-                // ==================== CONFETTI LOGIC (Physics Based) ====================
+                // ==================== CONFETTI LOGIC (Advanced Physics) ====================
         function triggerConfetti() {
             const container = document.createElement('div');
             container.className = 'confetti-container';
             document.body.appendChild(container);
             
             const colors = ['#C9A87C', '#E8D4C4', '#D4C4B0', '#7CB08A', '#C9B8A0', '#ffffff', '#D4B896'];
-            const particleCount = 150; // Количество частиц
+            const particleCount = 100; // Оптимизированное количество
             
-            // Массив объектов частиц с физическими свойствами
             const particles = [];
             
             for (let i = 0; i < particleCount; i++) {
-                // Случайный выбор типа: квадратик или ленточка
-                const isRibbon = Math.random() > 0.6;
+                // Определяем тип частицы для разной физики
+                const typeRandom = Math.random();
+                let type, gravity, drag, size, shape;
+                
+                if (typeRandom < 0.33) {
+                    // Тип 1: Легкие хлопья (падают медленно, много виляют)
+                    type = 'flake';
+                    gravity = 0.03 + Math.random() * 0.02; // Очень медленно
+                    drag = 0.97; // Высокое сопротивление воздуха
+                    size = 8;
+                    shape = 'circle';
+                } else if (typeRandom < 0.66) {
+                    // Тип 2: Ленты (средняя скорость, стабильное падение)
+                    type = 'ribbon';
+                    gravity = 0.06 + Math.random() * 0.03;
+                    drag = 0.98;
+                    size = 20; // Длина ленты
+                    shape = 'ribbon';
+                } else {
+                    // Тип 3: Квадраты (тяжелее, падают быстрее, мало виляют)
+                    type = 'square';
+                    gravity = 0.09 + Math.random() * 0.03; // Относительно быстрее
+                    drag = 0.99;
+                    size = 10;
+                    shape = 'square';
+                }
                 
                 const el = document.createElement('div');
-                el.className = isRibbon ? 'confetti-ribbon' : 'confetti-piece';
                 
-                // Случайный цвет
-                const color = colors[Math.floor(Math.random() * colors.length)];
-                el.style.backgroundColor = color;
+                // Настройка стилей в зависимости от формы
+                if (shape === 'ribbon') {
+                    el.className = 'confetti-ribbon';
+                    el.style.width = '6px';
+                    el.style.height = size + 'px';
+                } else {
+                    el.className = 'confetti-piece';
+                    el.style.width = size + 'px';
+                    el.style.height = size + 'px';
+                    if (shape === 'circle') el.style.borderRadius = '50%';
+                }
                 
-                // Начальная позиция (случайная по ширине экрана)
-                const x = Math.random() * window.innerWidth;
-                const y = -20; // Начинаем чуть выше экрана
+                el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                 
-                // Физические параметры
                 const particle = {
                     el: el,
-                    x: x,
-                    y: y,
-                    // Начальная скорость: немного в стороны и обязательно вниз
-                    vx: (Math.random() - 0.5) * 15, 
-                    vy: Math.random() * 5 + 5, 
-                    // Параметры вращения
+                    x: Math.random() * window.innerWidth,
+                    y: -20 - Math.random() * 100, // Разброс по высоте при старте
+                    vx: (Math.random() - 0.5) * 4, // Меньше разброс по горизонту в начале
+                    vy: Math.random() * 2, 
                     rotation: Math.random() * 360,
-                    rotationSpeed: (Math.random() - 0.5) * 15,
-                    // Параметры виляния (oscillation)
-                    oscillationSpeed: Math.random() * 0.1 + 0.02,
-                    oscillationDistance: Math.random() * 40 + 20,
+                    rotationSpeed: (Math.random() - 0.5) * 10,
+                    oscillationSpeed: Math.random() * 0.08 + 0.02,
+                    oscillationDistance: Math.random() * 30 + 10,
                     angle: Math.random() * Math.PI * 2,
-                    // Сопротивление воздуха (гравитация)
-                    gravity: 0.2 + Math.random() * 0.1,
-                    drag: 0.98
+                    gravity: gravity,
+                    drag: drag,
+                    opacity: 1
                 };
                 
                 particles.push(particle);
                 container.appendChild(el);
             }
             
-            // Анимационный цикл
+            // Расчет границ исчезновения
+            const fadeStart = window.innerHeight * 0.2; // Начало растворения (20% сверху)
+            const fadeEnd = window.innerHeight * 0.5;   // Полное исчезновение (центр)
+            
             let animationId;
             function animate() {
                 let activeParticles = 0;
                 
                 particles.forEach(p => {
-                    // Если частица еще на экране (с запасом)
-                    if (p.y < window.innerHeight + 50) {
+                    // Если частица еще видима
+                    if (p.opacity > 0) {
                         activeParticles++;
                         
                         // Обновление физики
                         p.angle += p.oscillationSpeed;
                         
                         // Виляние влево-вправо
-                        p.x += Math.sin(p.angle) * 0.5; 
+                        p.x += Math.sin(p.angle) * 0.3; 
                         
-                        // Применение гравитации и скорости
+                        // Применение гравитации
                         p.vy += p.gravity;
+                        
+                        // Применение скорости
                         p.y += p.vy;
                         p.x += p.vx;
                         
-                        // Сопротивление воздуха
+                        // Сопротивление воздуха (замедляет горизонтальный полет)
                         p.vx *= p.drag;
                         
                         // Вращение
                         p.rotation += p.rotationSpeed;
                         
-                        // Применение стилей к DOM элементу
-                        // translate3d использует GPU для плавности
-                        // rotateX/Y создают эффект 3D кувырка
+                        // --- Логика растворения ---
+                        if (p.y > fadeStart) {
+                            // Прозрачность уменьшается линейно от fadeStart до fadeEnd
+                            const progress = (p.y - fadeStart) / (fadeEnd - fadeStart);
+                            p.opacity = Math.max(0, 1 - progress);
+                        }
+                        
+                        // Применение трансформаций
                         const transform = `translate3d(${p.x}px, ${p.y}px, 0) rotateX(${p.rotation}deg) rotateY(${p.rotation}deg) rotateZ(${p.rotation / 2}deg)`;
                         
-                        // Масштабирование для имитации падения "ребром"
-                        const scale = 0.5 + Math.abs(Math.sin(p.angle)) * 0.5;
-                        
                         p.el.style.transform = transform;
-                        p.el.style.opacity = Math.max(0, 1 - (p.y / window.innerHeight)); // Плавное исчезновение внизу
-                        // Для ленточек можно менять масштаб, но для простоты оставим статичный размер
+                        p.el.style.opacity = p.opacity;
                     }
                 });
                 
-                // Если есть активные частицы, продолжаем цикл
                 if (activeParticles > 0) {
                     animationId = requestAnimationFrame(animate);
                 } else {
-                    // Очистка памяти после окончания анимации
                     cancelAnimationFrame(animationId);
                     container.remove();
                 }
             }
             
-            // Запуск анимации
             animate();
         }
 
