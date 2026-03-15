@@ -332,7 +332,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* Confetti */
+                /* Confetti Container */
         .confetti-container {
             position: fixed;
             top: 0;
@@ -342,29 +342,28 @@
             pointer-events: none;
             z-index: 9999;
             overflow: hidden;
+            perspective: 1000px; /* Важно для 3D вращения */
         }
 
         .confetti-piece {
             position: absolute;
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             top: -20px;
-            animation: confetti-fall linear forwards;
-        }
-
-        @keyframes confetti-fall {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+            /* Анимация теперь управляется JS, но оставим transition для плавности */
+            will-change: transform; 
         }
         
-        /* Reduced motion */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
+        /* Стили для "дождика" (ленточек) */
+        .confetti-ribbon {
+            position: absolute;
+            width: 8px;
+            height: 24px;
+            top: -30px;
+            border-radius: 2px;
+            will-change: transform;
         }
+        
     </style>
 </head>
 <body>
@@ -574,32 +573,110 @@
         }
 
         // ==================== CONFETTI LOGIC ====================
+                // ==================== CONFETTI LOGIC (Physics Based) ====================
         function triggerConfetti() {
             const container = document.createElement('div');
             container.className = 'confetti-container';
             document.body.appendChild(container);
             
-            const colors = ['#C9A87C', '#E8D4C4', '#D4C4B0', '#7CB08A', '#C9B8A0', '#fff'];
+            const colors = ['#C9A87C', '#E8D4C4', '#D4C4B0', '#7CB08A', '#C9B8A0', '#ffffff', '#D4B896'];
+            const particleCount = 150; // Количество частиц
             
-            for (let i = 0; i < 50; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti-piece';
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
-                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+            // Массив объектов частиц с физическими свойствами
+            const particles = [];
+            
+            for (let i = 0; i < particleCount; i++) {
+                // Случайный выбор типа: квадратик или ленточка
+                const isRibbon = Math.random() > 0.6;
                 
-                // Random shapes
-                if (Math.random() > 0.5) {
-                    confetti.style.borderRadius = '50%';
-                }
+                const el = document.createElement('div');
+                el.className = isRibbon ? 'confetti-ribbon' : 'confetti-piece';
                 
-                container.appendChild(confetti);
+                // Случайный цвет
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                el.style.backgroundColor = color;
+                
+                // Начальная позиция (случайная по ширине экрана)
+                const x = Math.random() * window.innerWidth;
+                const y = -20; // Начинаем чуть выше экрана
+                
+                // Физические параметры
+                const particle = {
+                    el: el,
+                    x: x,
+                    y: y,
+                    // Начальная скорость: немного в стороны и обязательно вниз
+                    vx: (Math.random() - 0.5) * 15, 
+                    vy: Math.random() * 5 + 5, 
+                    // Параметры вращения
+                    rotation: Math.random() * 360,
+                    rotationSpeed: (Math.random() - 0.5) * 15,
+                    // Параметры виляния (oscillation)
+                    oscillationSpeed: Math.random() * 0.1 + 0.02,
+                    oscillationDistance: Math.random() * 40 + 20,
+                    angle: Math.random() * Math.PI * 2,
+                    // Сопротивление воздуха (гравитация)
+                    gravity: 0.2 + Math.random() * 0.1,
+                    drag: 0.98
+                };
+                
+                particles.push(particle);
+                container.appendChild(el);
             }
             
-            setTimeout(() => {
-                container.remove();
-            }, 5000);
+            // Анимационный цикл
+            let animationId;
+            function animate() {
+                let activeParticles = 0;
+                
+                particles.forEach(p => {
+                    // Если частица еще на экране (с запасом)
+                    if (p.y < window.innerHeight + 50) {
+                        activeParticles++;
+                        
+                        // Обновление физики
+                        p.angle += p.oscillationSpeed;
+                        
+                        // Виляние влево-вправо
+                        p.x += Math.sin(p.angle) * 0.5; 
+                        
+                        // Применение гравитации и скорости
+                        p.vy += p.gravity;
+                        p.y += p.vy;
+                        p.x += p.vx;
+                        
+                        // Сопротивление воздуха
+                        p.vx *= p.drag;
+                        
+                        // Вращение
+                        p.rotation += p.rotationSpeed;
+                        
+                        // Применение стилей к DOM элементу
+                        // translate3d использует GPU для плавности
+                        // rotateX/Y создают эффект 3D кувырка
+                        const transform = `translate3d(${p.x}px, ${p.y}px, 0) rotateX(${p.rotation}deg) rotateY(${p.rotation}deg) rotateZ(${p.rotation / 2}deg)`;
+                        
+                        // Масштабирование для имитации падения "ребром"
+                        const scale = 0.5 + Math.abs(Math.sin(p.angle)) * 0.5;
+                        
+                        p.el.style.transform = transform;
+                        p.el.style.opacity = Math.max(0, 1 - (p.y / window.innerHeight)); // Плавное исчезновение внизу
+                        // Для ленточек можно менять масштаб, но для простоты оставим статичный размер
+                    }
+                });
+                
+                // Если есть активные частицы, продолжаем цикл
+                if (activeParticles > 0) {
+                    animationId = requestAnimationFrame(animate);
+                } else {
+                    // Очистка памяти после окончания анимации
+                    cancelAnimationFrame(animationId);
+                    container.remove();
+                }
+            }
+            
+            // Запуск анимации
+            animate();
         }
 
         // ==================== TYPING EFFECT ====================
