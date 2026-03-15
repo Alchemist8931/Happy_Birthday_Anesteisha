@@ -737,14 +737,15 @@
                 successText: "правильно, даже Гугл не может нас отличить..",
                 successImage: '7_5.JPG'
             },
-            round8: {
+                        round8: {
                 type: 'video',
                 src: '8.MP4',
                 question: "Cмогли ли мы взорвать хлопушку или остались без праздника?",
                 answers: [
                     { text: "Да", correct: false },
                     { text: "Нет", correct: true }
-                ]
+                ],
+                muted: false // ДОБАВЛЕНО: включить звук
             },
             round9: {
                 type: 'video-puzzle',
@@ -758,7 +759,8 @@
                             { text: "в бар", correct: false },
                             { text: "в гости", correct: false },
                             { text: "в арбитражный суд", correct: true }
-                        ]
+                        ],
+                        muted: false
                     },
                     {
                         question: "Сколько у нас денег?",
@@ -775,7 +777,8 @@
                 type: 'showcase',
                 src: '10.MP4',
                 mediaType: 'video',
-                question: "А это просто немного испанского стыда и самое тёплое воспоминание"
+                question: "А это просто немного испанского стыда и самое тёплое воспоминание",
+                muted: false
             },
             round11: {
                 type: 'showcase',
@@ -788,7 +791,7 @@
                 textSequence: [
                     { text: "Теперь можешь нажать на кнопку в нижнем левом углы-там сюрпрайз!)", type: "final" }
                 ],
-                giftImage: '12.JPG'
+                giftImage: '12.PNG'
             },
             resultsSequence: [
                 { text: "Поздравляю! Ты прошла викторину! ", type: "normal" },
@@ -818,7 +821,7 @@
         function preloadAssets() {
             const images = [
                 '755347937946415.png', '1.JPG', '2.JPG', '4.JPG', '5.JPG', '6.JPG', 
-                '7_1.JPG', '7_2.JPG', '7_3.JPG', '7_4.JPG', '7_5.JPG', '11.JPG', '12.JPG'
+                '7_1.JPG', '7_2.JPG', '7_3.JPG', '7_4.JPG', '7_5.JPG', '11.JPG', '12.PNG'
             ];
             const sounds = ['valerij_meladze_krasivo-482.mp3', 'aplodismentyi.mp3', 'neudacha.mp3'];
             const videos = ['3.MP4', '8.MP4', '9.MP4', '10.MP4'];
@@ -1138,19 +1141,27 @@
                     updateSlider(newIndex);
                 });
                 
-            } else if (roundData.type === 'video' || roundData.type === 'video-puzzle') {
+                       } else if (roundData.type === 'video' || roundData.type === 'video-puzzle') {
                 videoElement = document.createElement('video');
                 videoElement.src = roundData.src;
-                videoElement.muted = true;
+                videoElement.muted = true; // Сначала глушим для автозапуска
                 videoElement.playsInline = true;
                 videoElement.autoplay = true;
-                videoElement.loop = (roundData.type !== 'video-puzzle'); // Loop only if simple video
+                videoElement.loop = (roundData.type !== 'video-puzzle');
                 videoElement.id = 'round-video';
                 mediaContainer.appendChild(videoElement);
 
+                // FIX: Включаем звук сразу после начала воспроизведения, если нужно
+                // Это обходит политику браузера, разрешая звук после старта
+                if (roundData.muted === false) {
+                    videoElement.onloadeddata = () => {
+                        videoElement.muted = false;
+                    };
+                }
+
                 // Video Puzzle Logic (Round 9)
                 if (roundData.type === 'video-puzzle') {
-                    videoElement.loop = true; // Initially looping
+                    videoElement.loop = true;
                     const loopTime = roundData.loopEnd || 4;
                     
                     videoElement.addEventListener('timeupdate', function loopHandler() {
@@ -1160,19 +1171,20 @@
                     });
                 }
 
-            } else if (roundData.type === 'showcase') {
+                        } else if (roundData.type === 'showcase') {
                 if (roundData.mediaType === 'video') {
                     videoElement = document.createElement('video');
                     videoElement.src = roundData.src;
-                    videoElement.muted = false; // Sound on for showcase usually? Or off?
-                    // User said "video + caption". Usually demos have sound or don't. Let's assume unmuted but user can't interact.
-                    // But earlier prompts said "muted". Let's keep muted false but add controls? 
-                    // No, "just demonstration". Let's keep it simple: autoplay, muted (to avoid scary loud noise), loop.
-                    videoElement.muted = true; 
+                    videoElement.muted = true; // Сначала глушим для автозапуска
                     videoElement.playsInline = true;
                     videoElement.autoplay = true;
                     videoElement.loop = true;
                     mediaContainer.appendChild(videoElement);
+                    
+                    // FIX: Сразу включаем звук (трюк для обхода политики)
+                    videoElement.onloadeddata = () => {
+                        videoElement.muted = false;
+                    };
                 } else {
                     const img = document.createElement('img');
                     img.src = roundData.src;
@@ -1373,13 +1385,14 @@
             
             const isCorrect = btn.dataset.correct === 'true';
             
-            // Logic for Round 9 Step 1: Unloop video
+            // Logic for Round 9 Step 1: Unloop video & UNMUTE
             const video = document.getElementById('round-video');
             const roundNum = parseInt(wrapper.querySelector('#round-label').textContent.split(' ')[1]);
             const roundData = quizData[`round${roundNum}`];
 
             if (roundNum === 9 && currentStepIndex === 0 && video) {
                 video.loop = false;
+                video.muted = false; // ДОБАВЛЕНО: включить звук при ответе
             }
             
             if (isCorrect) {
