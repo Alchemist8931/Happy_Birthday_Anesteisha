@@ -401,21 +401,15 @@
             top: 0;
             left: 0;
             opacity: 0;
-            transition: all 0.5s ease;
+            transition: opacity 0.5s ease; /* Simplified transition */
             background-size: cover;
             background-position: center;
+            z-index: 1;
         }
         
         .slide .item.active {
             opacity: 1;
-            z-index: 1;
-        }
-
-        .slide .item.prev {
-            transform: translateX(-100%);
-        }
-        .slide .item.next {
-            transform: translateX(100%);
+            z-index: 2;
         }
         
         .slider-btn {
@@ -449,6 +443,87 @@
         /* Magnifying Glass Cursor */
         .magnify-cursor {
             cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="%23C9A87C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>') 16 16, zoom-in;
+        }
+
+        /* Gift Box Styles */
+        .gift-box-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .gift-box {
+            width: 150px;
+            height: 150px;
+            background: #C9A87C;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 25px rgba(201, 168, 124, 0.3);
+        }
+
+        .gift-box:hover {
+            transform: scale(1.05);
+        }
+
+        .gift-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 100%;
+            background: #A08050; /* Ribbon vertical */
+        }
+
+        .gift-box::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            width: 100%;
+            height: 30px;
+            background: #A08050; /* Ribbon horizontal */
+        }
+
+        .gift-bow {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 40px;
+            background: #8B7E6A;
+            border-radius: 50%;
+            z-index: 10;
+        }
+        
+        .gift-bow::before, .gift-bow::after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #8B7E6A;
+            border-radius: 50%;
+            top: 10px;
+        }
+        .gift-bow::before { left: -15px; }
+        .gift-bow::after { right: -15px; }
+
+        .gift-open-animation {
+            animation: boxOpen 0.5s ease forwards;
+        }
+
+        @keyframes boxOpen {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(0); opacity: 0; }
         }
 
     </style>
@@ -497,7 +572,7 @@
                         <!-- Content Side -->
                         <div class="flex-grow flex flex-col justify-center">
                             <div class="mb-6">
-                                <span class="text-sm text-muted uppercase tracking-wider" id="round-label">Раунд 1 из 8</span>
+                                <span class="text-sm text-muted uppercase tracking-wider" id="round-label">Раунд 1 из 12</span>
                                 <div class="progress-bar mt-2">
                                     <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
                                 </div>
@@ -515,6 +590,21 @@
                                 Далее
                             </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Gift Template -->
+        <template id="template-gift">
+            <div class="min-h-screen flex flex-col items-center justify-center px-6 py-12">
+                <div class="max-w-2xl w-full text-center">
+                    <div class="typing-container text-2xl md:text-3xl font-semibold text-text leading-relaxed">
+                        <span id="gift-text"></span><span class="typing-cursor"></span>
+                    </div>
+                    
+                    <div id="gift-area" class="mt-12 flex flex-col items-center justify-center min-h-[200px]">
+                        <!-- Box or Image will appear here -->
                     </div>
                 </div>
             </div>
@@ -566,7 +656,7 @@
 
     <script>
         // ==================== DATA ====================
-        const TOTAL_ROUNDS = 8;
+        const TOTAL_ROUNDS = 12;
         
         const quizData = {
             round1: {
@@ -632,7 +722,7 @@
                 ]
             },
             round7: {
-                type: 'slider', // Special type
+                type: 'slider',
                 images: ['7.1.JPG', '7.2.JPG', '7.3.JPG', '7.4.JPG'],
                 question: "Найди 10 отличий",
                 correctAnswer: ["отличий нет", "их нет", "0"],
@@ -651,6 +741,50 @@
                     { text: "Нет", correct: true }
                 ]
             },
+            round9: {
+                type: 'video-puzzle',
+                src: '9.MP4',
+                loopEnd: 4,
+                steps: [
+                    {
+                        question: "Куда мы собрались?",
+                        answers: [
+                            { text: "на пары", correct: false },
+                            { text: "в бар", correct: false },
+                            { text: "в гости", correct: false },
+                            { text: "в арбитражный суд", correct: true }
+                        ]
+                    },
+                    {
+                        question: "Сколько у нас денег?",
+                        answers: [
+                            { text: "500 рублей", correct: false },
+                            { text: "250 рублей", correct: false },
+                            { text: "120 рублей", correct: false },
+                            { text: "26 рублей", correct: true }
+                        ]
+                    }
+                ]
+            },
+            round10: {
+                type: 'showcase',
+                src: '10.MP4',
+                mediaType: 'video',
+                question: "А это просто немного испанского стыда и самое тёплое воспоминание"
+            },
+            round11: {
+                type: 'showcase',
+                src: '11.JPG',
+                mediaType: 'image',
+                question: "Ну ты красоткаа! Надеюсь, ты там дико смеешься, потому что пока я сдавала эту викторину - накачала пресс. А теперь просто посмотри мое самое любимое тёплое воспоминание с тобой!"
+            },
+            round12: {
+                type: 'gift',
+                textSequence: [
+                    { text: "Теперь можешь нажать на кнопку в нижнем левом углы-там сюрпрайз!)", type: "final" }
+                ],
+                giftImage: '12.JPG'
+            },
             resultsSequence: [
                 { text: "Поздравляю! Ты прошла викторину! ", type: "normal" },
                 { text: "Поздравляю! Ты прошла викторину! Хотя честно говоря, вопросы были так себе ", type: "normal" },
@@ -666,6 +800,7 @@
         let typingTimeout = null;
         let isSurpriseActive = false;
         let roundAttempts = 0;
+        let currentStepIndex = 0; // For multi-step rounds
 
         // ==================== DOM ELEMENTS ====================
         const bgMusic = document.getElementById('bg-music');
@@ -675,37 +810,32 @@
         const surpriseImage = document.getElementById('surprise-image');
 
         // ==================== PRELOAD ASSETS ====================
-                // ==================== PRELOAD ASSETS ====================
         function preloadAssets() {
             const images = [
                 '755347937946415.png', '1.JPG', '2.JPG', '4.JPG', '5.JPG', '6.JPG', 
-                '7.1.JPG', '7.2.JPG', '7.3.JPG', '7.4.JPG', '7.5.JPG'
+                '7.1.JPG', '7.2.JPG', '7.3.JPG', '7.4.JPG', '7.5.JPG', '11.JPG', '12.JPG'
             ];
             const sounds = ['valerij_meladze_krasivo-482.mp3', 'aplodismentyi.mp3', 'neudacha.mp3'];
-            const videos = ['3.MP4', '8.MP4'];
+            const videos = ['3.MP4', '8.MP4', '9.MP4', '10.MP4'];
             
-            // Предзагрузка изображений
             images.forEach(src => {
                 const img = new Image();
                 img.src = src;
             });
             
-            // Предзагрузка звуков в память
             sounds.forEach(src => {
                 const audio = new Audio();
                 audio.src = src;
                 audio.preload = 'auto';
-                audio.load(); // Принудительно начинаем загрузку
+                audio.load();
             });
             
-            // Предзагрузка видео
             videos.forEach(src => {
                 const video = document.createElement('video');
                 video.src = src;
                 video.preload = 'auto';
             });
 
-            // Гарантируем загрузку аудио-элементов, используемых в HTML
             if (bgMusic) bgMusic.load();
             if (soundCorrect) soundCorrect.load();
             if (soundIncorrect) soundIncorrect.load();
@@ -931,6 +1061,12 @@
         // ==================== ROUND LOGIC ====================
         async function showRound(roundNum) {
             const roundData = quizData[`round${roundNum}`];
+            
+            // Handle Gift Round separately
+            if (roundData.type === 'gift') {
+                return showGiftRound(roundNum, roundData);
+            }
+
             const wrapper = await showTemplate('template-round');
             
             const labelEl = wrapper.querySelector('#round-label');
@@ -951,10 +1087,12 @@
             selectedAnswer = null;
             isConfirmed = false;
             roundAttempts = 0;
-            
+            currentStepIndex = 0; // Reset step for multi-step rounds
+
             // --- Media Loading ---
+            let videoElement = null;
+
             if (roundData.type === 'slider') {
-                // Create Slider
                 mediaContainer.innerHTML = `
                     <div class="slider-container">
                         <div class="slide" id="slide-track"></div>
@@ -972,7 +1110,6 @@
                     track.appendChild(item);
                 });
                 
-                // Slider Logic
                 const items = track.querySelectorAll('.item');
                 let currentIndex = 0;
                 
@@ -996,28 +1133,69 @@
                     updateSlider(newIndex);
                 });
                 
-            } else if (roundData.type === 'video') {
-                const video = document.createElement('video');
-                video.src = roundData.src;
-                video.muted = true;
-                video.playsInline = true;
-                video.autoplay = true;
-                video.loop = true;
-                video.id = 'round-video';
-                mediaContainer.appendChild(video);
+            } else if (roundData.type === 'video' || roundData.type === 'video-puzzle') {
+                videoElement = document.createElement('video');
+                videoElement.src = roundData.src;
+                videoElement.muted = true;
+                videoElement.playsInline = true;
+                videoElement.autoplay = true;
+                videoElement.loop = (roundData.type !== 'video-puzzle'); // Loop only if simple video
+                videoElement.id = 'round-video';
+                mediaContainer.appendChild(videoElement);
+
+                // Video Puzzle Logic (Round 9)
+                if (roundData.type === 'video-puzzle') {
+                    videoElement.loop = true; // Initially looping
+                    const loopTime = roundData.loopEnd || 4;
+                    
+                    videoElement.addEventListener('timeupdate', function loopHandler() {
+                        if (videoElement.currentTime >= loopTime && videoElement.loop) {
+                            videoElement.currentTime = 0;
+                        }
+                    });
+                }
+
+            } else if (roundData.type === 'showcase') {
+                if (roundData.mediaType === 'video') {
+                    videoElement = document.createElement('video');
+                    videoElement.src = roundData.src;
+                    videoElement.muted = false; // Sound on for showcase usually? Or off?
+                    // User said "video + caption". Usually demos have sound or don't. Let's assume unmuted but user can't interact.
+                    // But earlier prompts said "muted". Let's keep muted false but add controls? 
+                    // No, "just demonstration". Let's keep it simple: autoplay, muted (to avoid scary loud noise), loop.
+                    videoElement.muted = true; 
+                    videoElement.playsInline = true;
+                    videoElement.autoplay = true;
+                    videoElement.loop = true;
+                    mediaContainer.appendChild(videoElement);
+                } else {
+                    const img = document.createElement('img');
+                    img.src = roundData.src;
+                    mediaContainer.appendChild(img);
+                }
             } else {
-                // Image
+                // Standard Image
                 const img = document.createElement('img');
                 img.src = roundData.src;
-                img.alt = `Раунд ${roundNum}`;
                 mediaContainer.appendChild(img);
             }
             
-            await typeSingleText(questionEl, roundData.question, 35);
+            // --- Question & Answers ---
             
-            // --- Answers / Input Loading ---
-            if (roundData.type === 'input' || roundData.type === 'slider') {
-                // Create Input Form
+            // Showcase type (Round 10, 11) - Immediate Next
+            if (roundData.type === 'showcase') {
+                await typeSingleText(questionEl, roundData.question, 35);
+                nextBtn.style.opacity = '1';
+                nextBtn.style.pointerEvents = 'auto';
+            } 
+            // Video Puzzle (Round 9) - Multi-step
+            else if (roundData.type === 'video-puzzle') {
+                await loadStep(roundData.steps[0], questionEl, answersContainer, nextBtn, wrapper);
+            }
+            // Standard Inputs
+            else if (roundData.type === 'input' || roundData.type === 'slider') {
+                await typeSingleText(questionEl, roundData.question, 35);
+                
                 const form = document.createElement('div');
                 form.className = 'flex flex-col gap-3 w-full';
                 form.innerHTML = `
@@ -1031,7 +1209,6 @@
                 const submitBtn = form.querySelector('#submit-answer');
                 const hintEl = form.querySelector('#attempt-hint');
                 
-                // Special Round 7 Logic
                 if (roundData.type === 'slider') {
                     roundAttempts = 3;
                     hintEl.textContent = `Осталось попыток: ${roundAttempts}`;
@@ -1042,9 +1219,7 @@
                     const val = input.value.trim().toLowerCase();
                     let isCorrect = false;
                     
-                    // Check logic
                     if (roundData.type === 'slider') {
-                        // Round 7 specific checks
                         const correctAnswers = roundData.correctAnswer.map(a => a.toLowerCase());
                         isCorrect = correctAnswers.includes(val);
                         
@@ -1067,7 +1242,6 @@
                             soundCorrect.play().catch(() => {});
                             triggerConfetti();
                             
-                            // Show success state
                             answersContainer.innerHTML = `
                                 <div class="flex flex-col gap-4 w-full">
                                     <p class="text-lg font-semibold text-text">${roundData.successText}</p>
@@ -1079,7 +1253,6 @@
                         }
                         
                     } else {
-                        // Standard Input Check (Round 5)
                         if (val === roundData.correctAnswer.toLowerCase()) {
                             isCorrect = true;
                         }
@@ -1107,9 +1280,10 @@
                         }
                     }
                 });
-                
-            } else {
-                // Standard Answers (Grid buttons)
+            }
+            // Standard Answers
+            else {
+                await typeSingleText(questionEl, roundData.question, 35);
                 roundData.answers.forEach((answer, index) => {
                     const btn = document.createElement('button');
                     btn.className = 'answer-btn stagger-item p-4 bg-white/50 border border-warm rounded-xl text-left text-text hover:bg-white/70 transition-all duration-300';
@@ -1136,6 +1310,93 @@
                     showResults();
                 }
             }, { once: true });
+        }
+
+        // Helper for multi-step rounds
+        async function loadStep(stepData, questionEl, answersContainer, nextBtn, wrapper) {
+            questionEl.textContent = '';
+            answersContainer.innerHTML = '';
+            selectedAnswer = null;
+            isConfirmed = false;
+
+            await typeSingleText(questionEl, stepData.question, 35);
+
+            stepData.answers.forEach((answer, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn stagger-item p-4 bg-white/50 border border-warm rounded-xl text-left text-text hover:bg-white/70 transition-all duration-300';
+                btn.innerHTML = `
+                    <span class="block font-medium text-muted">${String.fromCharCode(65 + index)}.</span>
+                    <span class="block mt-1">${answer.text}</span>
+                `;
+                btn.dataset.correct = answer.correct;
+                
+                answersContainer.appendChild(btn);
+                
+                setTimeout(() => {
+                    btn.classList.add('animate');
+                }, index * 100);
+                
+                btn.addEventListener('click', () => handleStepClick(btn, answersContainer, nextBtn, wrapper));
+            });
+        }
+
+        function handleStepClick(btn, container, nextBtn, wrapper) {
+            if (isConfirmed) return;
+            
+            if (selectedAnswer === btn) {
+                confirmStepAnswer(btn, container, nextBtn, wrapper);
+            } else {
+                container.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedAnswer = btn;
+            }
+        }
+
+        async function confirmStepAnswer(btn, container, nextBtn, wrapper) {
+            isConfirmed = true;
+            btn.classList.add('confirmed');
+            
+            const isCorrect = btn.dataset.correct === 'true';
+            
+            // Logic for Round 9 Step 1: Unloop video
+            const video = document.getElementById('round-video');
+            const roundNum = parseInt(wrapper.querySelector('#round-label').textContent.split(' ')[1]);
+            const roundData = quizData[`round${roundNum}`];
+
+            if (roundNum === 9 && currentStepIndex === 0 && video) {
+                video.loop = false;
+            }
+            
+            if (isCorrect) {
+                score++;
+                soundCorrect.currentTime = 0;
+                soundCorrect.play().catch(() => {});
+                triggerConfetti(); 
+            } else {
+                soundIncorrect.currentTime = 0;
+                soundIncorrect.play().catch(() => {});
+            }
+            
+            await sleep(1500);
+            
+            container.querySelectorAll('.answer-btn').forEach(b => {
+                if (b.dataset.correct === 'true') {
+                    b.classList.add('correct');
+                } else if (b === btn && !isCorrect) {
+                    b.classList.add('incorrect');
+                }
+            });
+
+            // Check if there is a next step
+            if (roundData.steps && currentStepIndex < roundData.steps.length - 1) {
+                await sleep(1000);
+                currentStepIndex++;
+                const questionEl = wrapper.querySelector('.round-question');
+                await loadStep(roundData.steps[currentStepIndex], questionEl, container, nextBtn, wrapper);
+            } else {
+                nextBtn.style.opacity = '1';
+                nextBtn.style.pointerEvents = 'auto';
+            }
         }
 
         function handleAnswerClick(btn, container, nextBtn, roundNum) {
@@ -1183,6 +1444,41 @@
             
             nextBtn.style.opacity = '1';
             nextBtn.style.pointerEvents = 'auto';
+        }
+
+        // ==================== GIFT ROUND ====================
+        async function showGiftRound(roundNum, roundData) {
+            const wrapper = await showTemplate('template-gift');
+            const typingText = wrapper.querySelector('#gift-text');
+            const giftArea = wrapper.querySelector('#gift-area');
+
+            await typeText(typingText, roundData.textSequence, 35);
+
+            // Create Gift Box
+            const box = document.createElement('div');
+            box.className = 'gift-box fade-in';
+            
+            const bow = document.createElement('div');
+            bow.className = 'gift-bow';
+            box.appendChild(bow);
+            
+            giftArea.appendChild(box);
+
+            box.addEventListener('click', async () => {
+                soundCorrect.currentTime = 0;
+                soundCorrect.play().catch(() => {});
+                
+                box.classList.add('gift-open-animation');
+                
+                await sleep(500);
+                
+                box.remove();
+                
+                const img = document.createElement('img');
+                img.src = roundData.giftImage;
+                img.className = 'w-full max-w-md rounded-2xl shadow-lg fade-in';
+                giftArea.appendChild(img);
+            });
         }
 
         // ==================== RESULTS ====================
@@ -1267,7 +1563,6 @@
         });
 
         // ==================== INITIALIZATION ====================
-        // Запускаем предзагрузку немедленно, так как скрипт внизу body
         preloadAssets();
         
         document.addEventListener('DOMContentLoaded', () => {
