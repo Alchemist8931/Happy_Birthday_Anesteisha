@@ -760,7 +760,7 @@
                             { text: "в гости", correct: false },
                             { text: "в арбитражный суд", correct: true }
                         ],
-                        muted: false
+                        stopTime: 15 // Время остановки после первого ответа
                     },
                     {
                         question: "Сколько у нас денег?",
@@ -1141,7 +1141,7 @@
                     updateSlider(newIndex);
                 });
                 
-                       } else if (roundData.type === 'video' || roundData.type === 'video-puzzle') {
+                                   } else if (roundData.type === 'video' || roundData.type === 'video-puzzle') {
                 videoElement = document.createElement('video');
                 videoElement.src = roundData.src;
                 videoElement.muted = true; // Сначала глушим для автозапуска
@@ -1151,15 +1151,15 @@
                 videoElement.id = 'round-video';
                 mediaContainer.appendChild(videoElement);
 
-                // FIX: Включаем звук сразу после начала воспроизведения, если нужно
-                // Это обходит политику браузера, разрешая звук после старта
-                if (roundData.muted === false) {
+                // FIX: Включаем звук сразу после старта для обычных видео (Round 8)
+                // Для video-puzzle (Round 9) оставляем глухим, пока пользователь не кликнет
+                if (roundData.type !== 'video-puzzle' && roundData.muted === false) {
                     videoElement.onloadeddata = () => {
                         videoElement.muted = false;
                     };
                 }
 
-                // Video Puzzle Logic (Round 9)
+                // Video Puzzle Logic (Round 9) - Loop initialization
                 if (roundData.type === 'video-puzzle') {
                     videoElement.loop = true;
                     const loopTime = roundData.loopEnd || 4;
@@ -1379,21 +1379,43 @@
             }
         }
 
-        async function confirmStepAnswer(btn, container, nextBtn, wrapper) {
+                async function confirmStepAnswer(btn, container, nextBtn, wrapper) {
             isConfirmed = true;
             btn.classList.add('confirmed');
             
             const isCorrect = btn.dataset.correct === 'true';
             
-            // Logic for Round 9 Step 1: Unloop video & UNMUTE
             const video = document.getElementById('round-video');
             const roundNum = parseInt(wrapper.querySelector('#round-label').textContent.split(' ')[1]);
             const roundData = quizData[`round${roundNum}`];
 
-            if (roundNum === 9 && currentStepIndex === 0 && video) {
-                video.loop = false;
-                video.muted = false; // ДОБАВЛЕНО: включить звук при ответе
+            // === ROUND 9 SPECIFIC LOGIC ===
+            if (roundNum === 9 && video) {
+                if (currentStepIndex === 0) {
+                    // Шаг 1: Ответ на "Арбитражный суд"
+                    video.loop = false; // Отключаем зацикливание
+                    video.muted = false; // Включаем звук
+                    
+                    const stopTime = roundData.steps[0].stopTime || 15;
+                    
+                    // Функция остановки видео на 15 секунде
+                    const stopHandler = () => {
+                        if (video.currentTime >= stopTime) {
+                            video.pause();
+                            video.removeEventListener('timeupdate', stopHandler);
+                        }
+                    };
+                    
+                    video.addEventListener('timeupdate', stopHandler);
+                    video.play();
+                    
+                } else if (currentStepIndex === 1) {
+                    // Шаг 2: Ответ на "26 рублей"
+                    // Видео уже стоит на паузе на 15 сек, просто запускаем до конца
+                    video.play();
+                }
             }
+            // ==============================
             
             if (isCorrect) {
                 score++;
